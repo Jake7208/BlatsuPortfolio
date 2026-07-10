@@ -230,6 +230,18 @@ export interface Media {
 export interface Tag {
   id: string;
   name: string;
+  /**
+   * Cover image shown on the home page card for this collection.
+   */
+  cover?: (string | null) | Media;
+  /**
+   * Caption under the card, e.g. "Graphic Design • Marketing".
+   */
+  blurb?: string | null;
+  /**
+   * Featured collections appear as cards on the home page (needs a cover).
+   */
+  featured?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -337,11 +349,11 @@ export interface Testimonial {
   _order?: string | null;
   name: string;
   /**
-   * e.g. "Team Lead — Proctor & Gamble"
+   * e.g. "Team Lead — Acme Corp"
    */
   role?: string | null;
   /**
-   * e.g. "Proctor & Gamble"
+   * e.g. "Acme Corp"
    */
   company?: string | null;
   /**
@@ -661,6 +673,9 @@ export interface BlogSelect<T extends boolean = true> {
  */
 export interface TagsSelect<T extends boolean = true> {
   name?: T;
+  cover?: T;
+  blurb?: T;
+  featured?: T;
   updatedAt?: T;
   createdAt?: T;
 }

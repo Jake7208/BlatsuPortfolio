@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { getPayload } from 'payload'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 import config from '@/payload.config'
 import WorkIndex from '@/components/WorkIndex'
@@ -35,7 +35,10 @@ export default async function WorkPage() {
 
       <section className="container">
         {posts.length > 0 ? (
-          <WorkIndex posts={posts} />
+          // useSearchParams (the ?tag= deep link) requires a Suspense boundary to stay static
+          <Suspense fallback={null}>
+            <WorkIndex posts={posts} />
+          </Suspense>
         ) : (
           <div className="empty-state">
             <p>Case studies are being written — check back soon.</p>

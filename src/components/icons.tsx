@@ -47,6 +47,64 @@ export function ArrowLeft({ className, ...props }: IconProps) {
   )
 }
 
+export function ChevronDown({ className, ...props }: IconProps) {
+  return (
+    <svg
+      className={cx('chevron-icon', className)}
+      viewBox="0 0 10 6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+    >
+      <path d="m1 1 4 4 4-4" />
+    </svg>
+  )
+}
+
+export function Menu({ className, ...props }: IconProps) {
+  return (
+    <svg
+      className={cx('menu-icon', className)}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+    >
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  )
+}
+
+export function Close({ className, ...props }: IconProps) {
+  return (
+    <svg
+      className={cx('menu-icon', className)}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+    >
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  )
+}
+
 // Outline heart that fills with `currentColor` when its button carries `.is-liked`.
 export function Heart({ className, ...props }: IconProps) {
   return (

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState, useSyncExternalStore } from 'react'
 
 import { Heart } from '@/components/icons'
 
@@ -17,6 +17,13 @@ function readLiked(): Record<string, true> {
   }
 }
 
+// 'storage' only fires for writes from other tabs; same-tab likes are covered
+// by the optimistic state in the component
+function subscribeToStorage(onChange: () => void) {
+  window.addEventListener('storage', onChange)
+  return () => window.removeEventListener('storage', onChange)
+}
+
 export default function CommentLikeButton({
   commentId,
   initialLikes,
@@ -25,19 +32,23 @@ export default function CommentLikeButton({
   initialLikes: number
 }) {
   const [likes, setLikes] = useState(initialLikes)
-  const [liked, setLiked] = useState(false)
+  const [optimisticLiked, setOptimisticLiked] = useState(false)
   const [pending, setPending] = useState(false)
 
-  // localStorage is client-only, so the liked state settles after hydration
-  useEffect(() => {
-    if (readLiked()[commentId]) setLiked(true)
-  }, [commentId])
+  // localStorage is client-only; the server snapshot renders un-liked and the
+  // stored value settles on the client without a hydration mismatch
+  const storedLiked = useSyncExternalStore(
+    subscribeToStorage,
+    () => Boolean(readLiked()[commentId]),
+    () => false,
+  )
+  const liked = optimisticLiked || storedLiked
 
   const like = async () => {
     if (liked || pending) return
     setPending(true)
     // optimistic — bump the count now, reconcile with the server below
-    setLiked(true)
+    setOptimisticLiked(true)
     setLikes((n) => n + 1)
     try {
       const res = await fetch(`/api/comments/${commentId}/like`, { method: 'POST' })
@@ -49,7 +60,7 @@ export default function CommentLikeButton({
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(store))
     } catch {
       // roll back so the button can be tried again
-      setLiked(false)
+      setOptimisticLiked(false)
       setLikes((n) => Math.max(0, n - 1))
     } finally {
       setPending(false)

@@ -5,49 +5,60 @@ import { siteConfig } from '@/site.config'
 
 export default function Footer() {
   return (
-    <footer className="site-footer container">
-      <div className="footer-cta">
-        {/* FOOTER CTA — a short invitation to get in touch */}
-        <h2>FOOTER_CTA_HEADLINE</h2>
-        <Link href="/contact">Get in touch</Link>
-      </div>
+    <footer className="site-footer">
+      <div className="footer-inner">
+        <div className="footer-brand">
+          <Link href="/" className="logo" aria-label={`${siteConfig.name} — home`}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- static brand mark, no optimization needed */}
+            <img src={siteConfig.logo.dark} alt="" width={81} height={55} />
+          </Link>
 
-      <div className="footer-grid">
-        <div>
-          <p className="footer-head">Menu</p>
+          <p className="footer-tagline">
+            Expert in graphic design &amp; marketing in the anime and manga industry.
+          </p>
+
+          <a className="footer-email" href={`mailto:${siteConfig.email}`}>
+            {siteConfig.email}
+          </a>
+
+          <Link href="/contact" className="btn btn-primary">
+            Contact Me
+          </Link>
+
+          <p className="footer-head">Follow Me</p>
+          <ul className="footer-social">
+            {siteConfig.social.map(({ label, href, icon }) => (
+              <li key={href}>
+                <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- static icon, no optimization needed */}
+                  <img src={icon} alt="" width={55} height={55} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="footer-links">
+          <p className="footer-head">Navigation</p>
           <nav className="footer-col">
-            {siteConfig.nav.map(({ href, label }) => (
-              <Link key={href} href={href}>
+            {siteConfig.footerNav.map(({ href, label }) => (
+              <Link key={label} href={href}>
                 {label}
               </Link>
             ))}
           </nav>
         </div>
-        <div>
-          <p className="footer-head">Elsewhere</p>
-          <div className="footer-col">
-            {siteConfig.social.map(({ label, href }) => (
-              <a key={href} href={href} target="_blank" rel="noopener noreferrer">
-                {label}
-              </a>
-            ))}
-            <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
-          </div>
-        </div>
-        <div>
-          <p className="footer-head">Location</p>
-          <div className="footer-col">
-            <span>{siteConfig.location.line1}</span>
-            <span>{siteConfig.location.line2}</span>
-          </div>
-        </div>
       </div>
 
       <div className="footer-bottom">
         <span>
-          &copy; {new Date().getFullYear()} {siteConfig.author}
+          All Rights Reserved {siteConfig.author} &copy; {new Date().getFullYear()}
         </span>
+        <span>{siteConfig.credit.label}</span>
+        <a href="#top">Back To Top</a>
       </div>
+
+      <div className="footer-rule" aria-hidden="true" />
     </footer>
   )
 }

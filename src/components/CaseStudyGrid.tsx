@@ -12,15 +12,24 @@ export type CaseStudyGridPost = Pick<
   'id' | 'title' | 'slug' | 'roles' | 'year' | 'mainMedia' | 'tags'
 >
 
-/** Grid of case-study cards — image first, title and role/year caption underneath. */
-export default function CaseStudyGrid({ posts }: { posts: CaseStudyGridPost[] }) {
+/**
+ * Grid of case-study cards — image first, role/year caption and title underneath.
+ * `className` lets the home page turn the same grid into a horizontal rail.
+ */
+export default function CaseStudyGrid({
+  posts,
+  className,
+}: {
+  posts: CaseStudyGridPost[]
+  className?: string
+}) {
   return (
-    <div className="gallery-grid">
+    <div className={className ? `work-grid ${className}` : 'work-grid'}>
       {posts.map((post, i) => {
         const media = mediaInfo(post.mainMedia)
         const sub = [post.roles, post.year].filter(Boolean).join(' — ')
         return (
-          <div key={post.id} className="gallery-item">
+          <div key={post.id} className="work-item">
             <Link href={`/work/${post.slug}`} className="work-card">
               {media ? (
                 <Media

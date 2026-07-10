@@ -1,5 +1,6 @@
 'use client'
 
+import { useSearchParams } from 'next/navigation'
 import React, { useMemo, useState } from 'react'
 
 import CaseStudyGrid, { type CaseStudyGridPost } from '@/components/CaseStudyGrid'
@@ -15,10 +16,12 @@ function tagNames(post: CaseStudyGridPost): string[] {
 
 /**
  * Case-study index with a category filter bar — "All" plus a pill per tag,
- * filtering client-side so the page stays static.
+ * filtering client-side so the page stays static. `?tag=Name` (how the home
+ * page's collection cards link in) pre-selects that filter.
  */
 export default function WorkIndex({ posts }: { posts: CaseStudyGridPost[] }) {
-  const [activeTag, setActiveTag] = useState<string | null>(null)
+  const initialTag = useSearchParams().get('tag')
+  const [activeTag, setActiveTag] = useState<string | null>(initialTag)
 
   const allTags = useMemo(() => {
     const names = new Set<string>()
