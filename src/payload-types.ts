@@ -172,7 +172,7 @@ export interface Media {
    */
   tags?: (string | Tag)[] | null;
   /**
-   * The most recently updated featured photo fills the full-width gallery band on the homepage.
+   * Check this box to include this image in the 3D rotating manga book cover carousel on the homepage hero section.
    */
   featured?: boolean | null;
   /**

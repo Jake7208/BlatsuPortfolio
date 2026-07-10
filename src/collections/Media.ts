@@ -33,11 +33,12 @@ export const Media: CollectionConfig = {
     },
     {
       name: 'featured',
+      label: 'Feature as Manga Cover',
       type: 'checkbox',
       defaultValue: false,
       admin: {
         description:
-          'The most recently updated featured photo fills the full-width gallery band on the homepage.',
+          'Check this box to include this image in the 3D rotating manga book cover carousel on the homepage hero section.',
       },
     },
     {

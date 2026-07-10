@@ -9,6 +9,7 @@ import Header from '@/components/Header'
 import SmoothScroll from '@/components/SmoothScroll'
 import PageTransition from '@/components/PageTransition'
 import ScrollReveal from '@/components/ScrollReveal'
+import Preloader from '@/components/Preloader'
 import './styles.css'
 
 const inter = Inter({
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={inter.variable}>
       <body id="top">
         <SmoothScroll />
+        <Preloader />
         <ContactModalProvider>
           <Header />
           <main>

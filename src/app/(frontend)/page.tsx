@@ -12,6 +12,7 @@ import JournalList from '@/components/JournalList'
 import Testimonials from '@/components/Testimonials'
 import TrustedBy from '@/components/TrustedBy'
 import { ArrowRight } from '@/components/icons'
+import MangaCanvas from '@/components/MangaCanvas'
 import { mediaInfo } from '@/lib/media'
 
 // statically rendered, refreshed in the background at most once a minute
@@ -29,7 +30,7 @@ const DISCIPLINES = [
 export default async function HomePage() {
   const payload = await getPayload({ config: await config })
 
-  const [collectionsRes, featuredRes, journalRes, testimonialRes, ...disciplineRes] =
+  const [collectionsRes, featuredRes, journalRes, testimonialRes, mediaFeaturedRes, ...disciplineRes] =
     await Promise.all([
       payload.find({
         collection: 'collections',
@@ -85,6 +86,12 @@ export default async function HomePage() {
           quote: true,
         },
       }),
+      payload.find({
+        collection: 'media',
+        where: { featured: { equals: true } },
+        limit: 8,
+        depth: 1,
+      }),
       // newest piece of work per discipline, for the What I Offer rotation
       ...DISCIPLINES.map(({ label }) =>
         payload.find({
@@ -104,26 +111,42 @@ export default async function HomePage() {
   const featured = featuredRes.docs
   const journal = journalRes.docs
   const testimonials = testimonialRes.docs
+  const featuredMedia = mediaFeaturedRes.docs
   const expertiseSlides = DISCIPLINES.map(({ label, fallbackSrc }, i) => ({
     label,
     fallbackSrc,
     media: mediaInfo(disciplineRes[i]?.docs[0]?.mainMedia),
   }))
 
+  let heroCovers = featuredMedia
+    .map((mediaDoc) => mediaInfo(mediaDoc)?.url)
+    .filter((url): url is string => typeof url === 'string' && url !== '')
+
+  if (heroCovers.length === 0) {
+    heroCovers = [
+      '/offer/graphic-design.png',
+      '/offer/photography.png',
+      '/offer/marketing.jpg',
+    ]
+  }
+
   return (
     <>
       <section className="hero">
         <div className="hero-panel">
-          <h1 className="hero-title">
-            <span>{siteConfig.name}</span>
-            <span>Graphic Designer &amp;</span>
-            <span>Marketing Expert</span>
-          </h1>
+          <div className="hero-content">
+            <h1 className="hero-title">
+              <span>{siteConfig.name}</span>
+              <span className="hero-tagline">I design brand systems and marketing campaigns for the anime and manga industry.</span>
+            </h1>
 
-          <ContactButton className="btn btn-primary btn-lg">
-            Get In Touch
-            <ArrowRight className="btn-arrow" />
-          </ContactButton>
+            <ContactButton className="btn btn-primary btn-lg">
+              Get In Touch
+              <ArrowRight className="btn-arrow" />
+            </ContactButton>
+          </div>
+
+          <MangaCanvas covers={heroCovers} />
         </div>
 
         <div className="hero-rail">
