@@ -54,16 +54,16 @@
    * the section's background keeps spanning the whole viewport */
   --bleed-pad: max(var(--content-pad), calc((100% - var(--shell)) / 2));
 
-  /* type scale, straight off the canvas */
-  --fs-display: clamp(2.25rem, 4.95vw, 95px);
-  --fs-h2: clamp(2rem, 3.18vw, 61px);
-  --fs-h3: clamp(1.5rem, 2.55vw, 49px);
-  --fs-card: clamp(1.5rem, 1.875vw, 36px);
-  --fs-lead: clamp(1.25rem, 1.61vw, 31px);
-  --fs-body: clamp(1.05rem, 1.3vw, 25px);
-  --fs-md: clamp(1rem, 1.04vw, 20px);
-  --fs-sm: 16px;
-  --fs-xs: 14px;
+  /* Clean, elegant typography scale inspired by modern Google design */
+  --fs-display: clamp(2rem, 3.8vw, 64px); /* Hero titles - legible, premium, not overwhelming */
+  --fs-h2: clamp(1.6rem, 2.4vw, 36px);      /* Section headings - balanced and clean */
+  --fs-h3: clamp(1.3rem, 1.8vw, 26px);       /* Mid-size subtitles & headings */
+  --fs-card: clamp(1.15rem, 1.35vw, 22px);     /* Cards title */
+  --fs-lead: clamp(1.1rem, 1.25vw, 19px);    /* Lead paragraph text */
+  --fs-body: clamp(0.95rem, 1.05vw, 16px);      /* Body text - readable and sleek */
+  --fs-md: 15px;                              /* Medium size elements */
+  --fs-sm: 14px;                              /* Small font size (standard labels, etc.) */
+  --fs-xs: 12px;                              /* Extra small (badges, tags, eyebrows) */
 }
 
 *,
@@ -103,7 +103,7 @@ body {
   color: var(--ink);
   font-family: var(--font-sans), 'Inter', system-ui, -apple-system, sans-serif;
   font-size: var(--fs-sm);
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -154,21 +154,24 @@ video {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  min-height: 50px;
-  height: 65px;
-  padding-inline: 30px;
+  min-height: 44px;
+  height: 52px;
+  padding-inline: 24px;
   border: 1px solid transparent;
   border-radius: var(--radius-pill);
   font: inherit;
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: 500;
   text-transform: capitalize;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background-color 0.2s ease,
-    transform 0.2s ease;
+    background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary {
@@ -178,23 +181,31 @@ video {
 
 .btn-primary:hover {
   background: var(--blue-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 126, 255, 0.25);
 }
 
 .btn-primary:active {
   transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(0, 126, 255, 0.15);
 }
 
 .btn-lg {
-  height: 75px;
-  border-radius: 60px;
-  padding-inline: 30px;
+  height: 60px;
+  border-radius: var(--radius-pill);
+  padding-inline: 28px;
   font-size: var(--fs-md);
   font-weight: 500;
   text-transform: none;
 }
 
 .btn-shadow {
-  box-shadow: 0 2px 10px 2px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 4px 12px rgba(25, 25, 33, 0.06);
+}
+
+.btn-shadow:hover {
+  box-shadow: 0 6px 18px rgba(25, 25, 33, 0.1);
+  transform: translateY(-1px);
 }
 
 .arrow-icon {
@@ -827,7 +838,7 @@ video {
   min-height: min(1008px, calc(100vh - 150px));
   min-height: min(1008px, calc(100svh - 150px));
   margin-inline: auto;
-  padding: clamp(32px, 4vw, 78px) clamp(24px, 2.6vw, 50px) clamp(40px, 2.6vw, 50px);
+  padding: clamp(24px, 3vw, 56px) clamp(20px, 2.5vw, 40px);
   border-radius: var(--radius-panel);
   background: var(--ink);
   color: #fff;
@@ -862,35 +873,39 @@ video {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: clamp(12px, 1.25vw, 24px);
+  gap: 12px;
 }
 
 .testimonial-pill {
-  padding: clamp(14px, 1.3vw, 25px) clamp(16px, 1.05vw, 20px);
+  padding: 10px 18px;
   border: 1px solid var(--on-dark-10);
   border-radius: 78px;
   background: transparent;
   color: #fff;
   font: inherit;
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
   font-weight: 500;
   line-height: 1.25;
   text-align: left;
   text-transform: capitalize;
   cursor: pointer;
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
 }
 
 .testimonial-pill:hover:not(.is-active) {
   border-color: var(--on-dark-20);
   background: rgba(255, 255, 255, 0.04);
+  transform: translateY(-1px);
 }
 
 .testimonial-pill.is-active {
   border-color: var(--blue);
   background: var(--blue);
+  box-shadow: 0 4px 12px rgba(0, 126, 255, 0.25);
 }
 
 .testimonial {
@@ -899,9 +914,9 @@ video {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(28px, 2.9vw, 55px);
+  gap: 30px;
   margin: 0;
-  padding: clamp(28px, 3.5vw, 67px);
+  padding: clamp(24px, 3vw, 48px);
   border: 1px solid var(--on-dark-20);
   border-radius: var(--radius-panel);
   box-shadow: 0 4px 42px -17px rgba(25, 25, 33, 0.25);
@@ -910,7 +925,7 @@ video {
 .testimonial-quote {
   width: min(850px, 100%);
   margin: 0;
-  font-size: var(--fs-lead);
+  font-size: clamp(1.05rem, 1.25vw, 19px);
   line-height: 1.5;
 }
 
@@ -2049,4 +2064,71 @@ video {
   .trusted-track[aria-hidden='true'] {
     display: none;
   }
+}
+
+/* ------------------------------------------------------------------ eyebrows */
+.eyebrow {
+  display: inline-block;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--blue);
+  margin: 0 0 12px 0;
+}
+
+/* ----------------------------------------------------------- page transition */
+.page-transition-container {
+  animation: page-fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------------------------- scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scroll reveal modifiers & delay patterns */
+.reveal-fade {
+  transform: none;
+}
+
+.reveal-scale {
+  transform: scale(0.97);
+}
+
+.reveal-delay-1 {
+  transition-delay: 0.08s;
+}
+
+.reveal-delay-2 {
+  transition-delay: 0.16s;
+}
+
+.reveal-delay-3 {
+  transition-delay: 0.24s;
+}
+
+.reveal-delay-4 {
+  transition-delay: 0.32s;
 }

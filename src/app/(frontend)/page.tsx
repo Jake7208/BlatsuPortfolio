@@ -144,7 +144,7 @@ export default async function HomePage() {
         {/* eslint-disable-next-line @next/next/no-img-element -- decorative shape */}
         <img className="about-decor" src="/decor/shape-about.svg" alt="" aria-hidden="true" />
 
-        <div className="about-body">
+        <div className="about-body reveal">
           <p className="chip">About</p>
 
           <h2 className="visually-hidden" id="about-title">
@@ -170,7 +170,7 @@ export default async function HomePage() {
       </section>
 
       <section className="work-showcase" aria-labelledby="work-title">
-        <h2 className="work-showcase-title" id="work-title">
+        <h2 className="work-showcase-title reveal" id="work-title">
           In the manga industry I&rsquo;ve had many roles check out some of{' '}
           <span>my work.</span>
         </h2>
@@ -190,7 +190,7 @@ export default async function HomePage() {
 
       {testimonials.length > 0 && (
         <section className="testimonials" aria-labelledby="testimonials-title">
-          <div className="testimonials-panel">
+          <div className="testimonials-panel reveal">
             <p className="chip chip-light">Testimonials</p>
             <h2 className="testimonials-title" id="testimonials-title">
               Hear what <span>others had to say.</span>
@@ -204,7 +204,7 @@ export default async function HomePage() {
         {/* eslint-disable-next-line @next/next/no-img-element -- decorative shape */}
         <img className="blog-decor" src="/decor/shape-blog.svg" alt="" aria-hidden="true" />
 
-        <h2 className="blog-section-title" id="blog-title">
+        <h2 className="blog-section-title reveal" id="blog-title">
           Stay updated in the anime &amp; manga industry
         </h2>
 

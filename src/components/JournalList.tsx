@@ -18,7 +18,7 @@ export type JournalListPost = Pick<
 export default function JournalList({ posts }: { posts: JournalListPost[] }) {
   return (
     <div className="journal-list">
-      {posts.map((post) => {
+      {posts.map((post, i) => {
         const media = mediaInfo(post.mainMedia)
         const tags = (post.tags ?? []).filter(
           (t): t is Exclude<typeof t, string> => typeof t !== 'string',
@@ -31,7 +31,7 @@ export default function JournalList({ posts }: { posts: JournalListPost[] }) {
             })
           : null
         return (
-          <Link key={post.id} href={`/blog/${post.slug}`} className="journal-row">
+          <Link key={post.id} href={`/blog/${post.slug}`} className={`journal-row reveal reveal-delay-${(i % 2) + 1}`}>
             {media && (
               <div className="journal-thumb">
                 <Media

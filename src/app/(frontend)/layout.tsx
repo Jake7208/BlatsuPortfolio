@@ -7,6 +7,8 @@ import { ContactModalProvider } from '@/components/ContactModal'
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
 import SmoothScroll from '@/components/SmoothScroll'
+import PageTransition from '@/components/PageTransition'
+import ScrollReveal from '@/components/ScrollReveal'
 import './styles.css'
 
 const inter = Inter({
@@ -30,9 +32,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SmoothScroll />
         <ContactModalProvider>
           <Header />
-          <main>{children}</main>
+          <main>
+            <PageTransition>
+              {children}
+            </PageTransition>
+          </main>
           <Footer />
         </ContactModalProvider>
+        <ScrollReveal />
       </body>
     </html>
   )

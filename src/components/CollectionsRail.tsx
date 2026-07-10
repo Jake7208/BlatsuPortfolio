@@ -19,7 +19,7 @@ export default function CollectionsRail({ collections }: { collections: RailColl
       {collections.map((collection, i) => {
         const media = mediaInfo(collection.cover)
         return (
-          <div key={collection.id} className="work-item">
+          <div key={collection.id} className={`work-item reveal reveal-delay-${(i % 3) + 1}`}>
             <Link href={`/work/${collection.slug}`} className="work-card">
               {media ? (
                 <Media

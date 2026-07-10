@@ -29,7 +29,7 @@ export default function CaseStudyGrid({
         const media = mediaInfo(post.mainMedia)
         const sub = [post.roles, post.year].filter(Boolean).join(' — ')
         return (
-          <div key={post.id} className="work-item">
+          <div key={post.id} className={`work-item reveal reveal-delay-${(i % 4) + 1}`}>
             <Link href={`/work/${post.slug}`} className="work-card">
               {media ? (
                 <Media

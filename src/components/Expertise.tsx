@@ -78,7 +78,7 @@ export default function Expertise({ slides }: { slides: ExpertiseSlide[] }) {
       aria-labelledby="expertise-title"
       style={{ '--rotate-ms': `${ROTATE_MS}ms` } as React.CSSProperties}
     >
-      <div className="expertise-inner">
+      <div className="expertise-inner reveal">
         <div className="expertise-media">
           {slides.map((slide, i) => {
             const src = slide.media?.url ?? slide.fallbackSrc
