@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     'case-studies': CaseStudy;
+    collections: Collection;
     blog: Blog;
     tags: Tag;
     testimonials: Testimonial;
@@ -85,6 +86,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'case-studies': CaseStudiesSelect<false> | CaseStudiesSelect<true>;
+    collections: CollectionsSelect<false> | CollectionsSelect<true>;
     blog: BlogSelect<false> | BlogSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
@@ -162,6 +164,10 @@ export interface Media {
   id: string;
   alt: string;
   /**
+   * Which collection of work this belongs to — shows on that collection’s page. Leave empty if it’s not part of one; it just stays in the library (and the gallery, if tagged).
+   */
+  workCollection?: (string | null) | Collection;
+  /**
    * Tagged images appear in the site gallery, filterable by tag.
    */
   tags?: (string | Tag)[] | null;
@@ -224,14 +230,21 @@ export interface Media {
   };
 }
 /**
+ * Each collection is a card on the home page. Drag rows in this list to set their order.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags".
+ * via the `definition` "collections".
  */
-export interface Tag {
+export interface Collection {
   id: string;
+  _order?: string | null;
   name: string;
   /**
-   * Cover image shown on the home page card for this collection.
+   * Leave blank to generate from the name.
+   */
+  slug: string;
+  /**
+   * Cover image for the home page card and the collection page header.
    */
   cover?: (string | null) | Media;
   /**
@@ -239,9 +252,19 @@ export interface Tag {
    */
   blurb?: string | null;
   /**
-   * Featured collections appear as cards on the home page (needs a cover).
+   * Optional intro shown at the top of the collection page.
    */
-  featured?: boolean | null;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: string;
+  name: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -380,8 +403,8 @@ export interface ContactSubmission {
   id: string;
   name: string;
   email: string;
-  topic?: ('work' | 'question' | 'hello') | null;
-  message: string;
+  topic?: ('job' | 'inquiry' | 'other') | null;
+  message?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -455,6 +478,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'case-studies';
         value: string | CaseStudy;
+      } | null)
+    | ({
+        relationTo: 'collections';
+        value: string | Collection;
       } | null)
     | ({
         relationTo: 'blog';
@@ -546,6 +573,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  workCollection?: T;
   tags?: T;
   featured?: T;
   description?: T;
@@ -652,6 +680,20 @@ export interface CaseStudiesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_select".
+ */
+export interface CollectionsSelect<T extends boolean = true> {
+  _order?: T;
+  name?: T;
+  slug?: T;
+  cover?: T;
+  blurb?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "blog_select".
  */
 export interface BlogSelect<T extends boolean = true> {
@@ -673,9 +715,6 @@ export interface BlogSelect<T extends boolean = true> {
  */
 export interface TagsSelect<T extends boolean = true> {
   name?: T;
-  cover?: T;
-  blurb?: T;
-  featured?: T;
   updatedAt?: T;
   createdAt?: T;
 }

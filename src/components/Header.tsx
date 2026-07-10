@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import React from 'react'
 
 import { siteConfig, type NavItem } from '@/site.config'
+import { useContactModal } from '@/components/ContactModal'
 import { ChevronDown, Close, Menu } from '@/components/icons'
 
 /** `/#about` points at a section of the home page, not a route of its own. */
@@ -12,6 +13,7 @@ const routeOf = (href: string) => href.split('#')[0] || '/'
 
 export default function Header() {
   const pathname = usePathname()
+  const { open: openContact } = useContactModal()
   const [menuOpen, setMenuOpen] = React.useState(false)
   const [openDropdown, setOpenDropdown] = React.useState<string | null>(null)
   const headerRef = React.useRef<HTMLElement>(null)
@@ -68,6 +70,22 @@ export default function Header() {
             const current = isActive(item) ? 'page' : undefined
 
             if (!item.children) {
+              // contact opens as a popup instead of navigating
+              if (routeOf(item.href) === '/contact') {
+                return (
+                  <button
+                    key={item.label}
+                    type="button"
+                    className="nav-link"
+                    onClick={() => {
+                      closeAll()
+                      openContact()
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                )
+              }
               return (
                 <Link
                   key={item.label}
@@ -89,22 +107,17 @@ export default function Header() {
                 key={item.label}
                 className={`nav-item has-children${expanded ? ' is-open' : ''}`}
               >
-                <Link
-                  href={item.href}
-                  className="nav-link"
-                  aria-current={current}
-                  onClick={closeAll}
-                >
-                  {item.label}
-                </Link>
+                {/* the parent only toggles its dropdown — clicking "Work"
+                    (once or twice) never navigates; pages are picked below */}
                 <button
                   type="button"
-                  className="nav-caret"
+                  className="nav-link nav-parent"
+                  aria-current={current}
                   aria-expanded={expanded}
                   aria-controls={dropdownId}
-                  aria-label={`${expanded ? 'Hide' : 'Show'} ${item.label} pages`}
                   onClick={() => setOpenDropdown(expanded ? null : item.label)}
                 >
+                  {item.label}
                   <ChevronDown />
                 </button>
                 <ul id={dropdownId} className="nav-menu">
@@ -130,9 +143,16 @@ export default function Header() {
           <img src={siteConfig.logo.light} alt="" width={59} height={40} />
         </Link>
 
-        <Link href="/contact" className="btn btn-primary nav-cta" onClick={closeAll}>
+        <button
+          type="button"
+          className="btn btn-primary nav-cta"
+          onClick={() => {
+            closeAll()
+            openContact()
+          }}
+        >
           Let&rsquo;s Talk
-        </Link>
+        </button>
       </div>
     </header>
   )

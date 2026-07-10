@@ -1,32 +1,32 @@
 import Link from 'next/link'
 import React from 'react'
 
-import type { Tag } from '@/payload-types'
+import type { Collection } from '@/payload-types'
 import Media from '@/components/Media'
 import { mediaInfo } from '@/lib/media'
 
 /** Only the fields the rail renders — lets pages query with `select`. */
-export type FeaturedCollection = Pick<Tag, 'id' | 'name' | 'blurb' | 'cover'>
+export type RailCollection = Pick<Collection, 'id' | 'name' | 'slug' | 'blurb' | 'cover'>
 
 /**
- * The home page's work rail: one card per featured tag (a client / collection
- * of work), cover first, caption and name underneath. Each card deep-links
- * into the work index pre-filtered to that tag.
+ * The home page's work rail: one card per collection (a client / body of
+ * work), cover first, caption and name underneath. Each card links to the
+ * collection's own page with all of its media.
  */
-export default function CollectionsRail({ collections }: { collections: FeaturedCollection[] }) {
+export default function CollectionsRail({ collections }: { collections: RailCollection[] }) {
   return (
     <div className="work-grid work-rail">
-      {collections.map((tag, i) => {
-        const media = mediaInfo(tag.cover)
+      {collections.map((collection, i) => {
+        const media = mediaInfo(collection.cover)
         return (
-          <div key={tag.id} className="work-item">
-            <Link href={`/work?tag=${encodeURIComponent(tag.name)}`} className="work-card">
+          <div key={collection.id} className="work-item">
+            <Link href={`/work/${collection.slug}`} className="work-card">
               {media ? (
                 <Media
                   src={media.url}
                   srcSet={media.srcSet}
                   sizes="(max-width: 768px) 90vw, 40vw"
-                  alt={media.alt || `${tag.name} — selected work`}
+                  alt={media.alt || `${collection.name} — selected work`}
                   mimeType={media.mime}
                   width={media.width}
                   height={media.height}
@@ -37,8 +37,8 @@ export default function CollectionsRail({ collections }: { collections: Featured
                 </div>
               )}
               <div className="work-card-meta">
-                {tag.blurb && <p className="work-card-info">{tag.blurb}</p>}
-                <h3 className="work-card-title">{tag.name}</h3>
+                {collection.blurb && <p className="work-card-info">{collection.blurb}</p>}
+                <h3 className="work-card-title">{collection.name}</h3>
               </div>
             </Link>
           </div>

@@ -12,6 +12,7 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Blog } from './collections/Blog'
 import { CaseStudies } from './collections/CaseStudies'
+import { Collections } from './collections/Collections'
 import { Tags } from './collections/Tags'
 import { Testimonials } from './collections/Testimonials'
 import { ContactSubmissions } from './collections/ContactSubmissions'
@@ -27,7 +28,17 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, CaseStudies, Blog, Tags, Testimonials, ContactSubmissions, Comments],
+  collections: [
+    Users,
+    Media,
+    CaseStudies,
+    Collections,
+    Blog,
+    Tags,
+    Testimonials,
+    ContactSubmissions,
+    Comments,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

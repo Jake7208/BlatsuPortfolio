@@ -10,7 +10,8 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'Work',
-  description: 'WORK_PAGE_DESCRIPTION',
+  description:
+    'Case studies and selected work by Jaden Robertson — graphic design, marketing and social media across the anime and manga industry.',
 }
 
 export default async function WorkPage() {
@@ -30,7 +31,9 @@ export default async function WorkPage() {
     <>
       <section className="page-intro container">
         <p className="eyebrow">Work / {totalDocs}</p>
-        <h1>WORK_PAGE_HEADLINE</h1>
+        <h1>
+          Covers, campaigns and case studies from <span>my work</span> in manga publishing.
+        </h1>
       </section>
 
       <section className="container">

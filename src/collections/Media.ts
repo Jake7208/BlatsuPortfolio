@@ -12,6 +12,17 @@ export const Media: CollectionConfig = {
       required: true,
     },
     {
+      // 'collection' itself is a reserved mongoose pathname — hence the prefix
+      name: 'workCollection',
+      label: 'Collection',
+      type: 'relationship',
+      relationTo: 'collections',
+      admin: {
+        description:
+          'Which collection of work this belongs to — shows on that collection’s page. Leave empty if it’s not part of one; it just stays in the library (and the gallery, if tagged).',
+      },
+    },
+    {
       name: 'tags',
       type: 'relationship',
       relationTo: 'tags',

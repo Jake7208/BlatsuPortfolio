@@ -99,7 +99,13 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
       {active &&
         openIndex !== null &&
         createPortal(
-          <div className="lightbox" role="dialog" aria-modal="true" aria-label={active.alt}>
+          <div
+            className="lightbox"
+            role="dialog"
+            aria-modal="true"
+            aria-label={active.alt}
+            data-lenis-prevent
+          >
             <header className="lightbox-top">
               <span className="lightbox-count">
                 {pad(openIndex + 1)} / {pad(items.length)}

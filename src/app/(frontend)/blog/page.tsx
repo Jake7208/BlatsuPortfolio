@@ -10,7 +10,8 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'Blog',
-  description: 'BLOG_PAGE_DESCRIPTION',
+  description:
+    'Articles by Jaden Robertson on design, marketing and life inside the anime and manga industry.',
 }
 
 export default async function BlogIndexPage() {
@@ -37,7 +38,9 @@ export default async function BlogIndexPage() {
     <>
       <section className="page-intro container">
         <p className="eyebrow">Blog / {totalDocs}</p>
-        <h1>BLOG_PAGE_HEADLINE</h1>
+        <h1>
+          Notes and stories from inside the <span>anime &amp; manga industry.</span>
+        </h1>
       </section>
 
       <section className="container">

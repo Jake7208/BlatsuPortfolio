@@ -2,6 +2,10 @@ import Link from 'next/link'
 import React from 'react'
 
 import { siteConfig } from '@/site.config'
+import { ContactButton } from '@/components/ContactModal'
+
+/** `/#about` points at a section of the home page, not a route of its own. */
+const routeOf = (href: string) => href.split('#')[0] || '/'
 
 export default function Footer() {
   return (
@@ -21,9 +25,7 @@ export default function Footer() {
             {siteConfig.email}
           </a>
 
-          <Link href="/contact" className="btn btn-primary">
-            Contact Me
-          </Link>
+          <ContactButton className="btn btn-primary">Contact Me</ContactButton>
 
           <p className="footer-head">Follow Me</p>
           <ul className="footer-social">
@@ -41,11 +43,15 @@ export default function Footer() {
         <div className="footer-links">
           <p className="footer-head">Navigation</p>
           <nav className="footer-col">
-            {siteConfig.footerNav.map(({ href, label }) => (
-              <Link key={label} href={href}>
-                {label}
-              </Link>
-            ))}
+            {siteConfig.footerNav.map(({ href, label }) =>
+              routeOf(href) === '/contact' ? (
+                <ContactButton key={label}>{label}</ContactButton>
+              ) : (
+                <Link key={label} href={href}>
+                  {label}
+                </Link>
+              ),
+            )}
           </nav>
         </div>
       </div>

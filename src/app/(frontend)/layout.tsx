@@ -3,8 +3,10 @@ import { Inter } from 'next/font/google'
 import React from 'react'
 
 import { siteConfig } from '@/site.config'
+import { ContactModalProvider } from '@/components/ContactModal'
 import Footer from '@/components/Footer'
 import Header from '@/components/Header'
+import SmoothScroll from '@/components/SmoothScroll'
 import './styles.css'
 
 const inter = Inter({
@@ -25,9 +27,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={inter.variable}>
       <body id="top">
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        <SmoothScroll />
+        <ContactModalProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </ContactModalProvider>
       </body>
     </html>
   )

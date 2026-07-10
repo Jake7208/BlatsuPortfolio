@@ -15,7 +15,7 @@
  *               .lightbox .lightbox-stage .lightbox-info .lightbox-thumbs
  *   articles    .post-hero .post-info .post-body .rich-text .media-frame
  *   comments    .comments .comment .comment-form .comment-like
- *   contact     .contact-form .contact-field .contact-error
+ *   contact     .contact-overlay .contact-modal .contact-pill .contact-error
  *   testimonials .testimonial .testimonial-quote .testimonial-who
  */
 
@@ -44,10 +44,15 @@
   --radius-card: 10px;
   --radius-chip: 23px;
 
-  /* the 1814px panel inset 53px either side of the 1920px canvas */
-  --shell: 1814px;
+  /* max content width — one knob for the whole site (nav, hero panel,
+   * containers, testimonials, footer columns all follow it) */
+  --shell: 1520px;
   --page-pad: clamp(16px, 2.76vw, 53px);
   --content-pad: clamp(20px, 2.6vw, 50px);
+  /* side inset for full-bleed sections: normal padding up to the design
+   * width, then grows so the content stays a centered --shell column while
+   * the section's background keeps spanning the whole viewport */
+  --bleed-pad: max(var(--content-pad), calc((100% - var(--shell)) / 2));
 
   /* type scale, straight off the canvas */
   --fs-display: clamp(2.25rem, 4.95vw, 95px);
@@ -67,11 +72,32 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
+/* Lenis drives smooth scrolling (see SmoothScroll.tsx) — native
+ * scroll-behavior would fight it, so anchors fall back to instant jumps
+ * when Lenis is off (reduced motion). */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 
 body {
+  /* short pages still fill the viewport, so the footer starts below the fold */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
   margin: 0;
   background: #fff;
   color: var(--ink);
@@ -79,6 +105,15 @@ body {
   font-size: var(--fs-sm);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+body > main {
+  flex: 1 0 auto;
+  /* even a near-empty page keeps the footer below the first viewport;
+   * 100px stays just under the sticky header's ~111px slot so the footer
+   * always lands past the fold */
+  min-height: calc(100vh - 100px);
+  min-height: calc(100svh - 100px);
 }
 
 img,
@@ -232,11 +267,17 @@ video {
 }
 
 .nav-link {
+  /* both <a> and the contact modal's trigger <button> wear this class */
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--ink);
+  font: inherit;
   font-size: var(--fs-sm);
   font-weight: 500;
   text-transform: capitalize;
   text-decoration: none;
+  cursor: pointer;
   transition: color 0.2s ease;
 }
 
@@ -260,14 +301,10 @@ video {
   height: 16px;
 }
 
-.nav-caret {
-  display: grid;
-  place-items: center;
-  padding: 4px;
-  border: 0;
-  background: none;
-  color: var(--ink);
-  cursor: pointer;
+.nav-parent {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .chevron-icon {
@@ -496,7 +533,7 @@ video {
 .about {
   position: relative;
   overflow: hidden;
-  padding: clamp(60px, 5.2vw, 100px) var(--content-pad) clamp(80px, 16vw, 310px);
+  padding: clamp(60px, 5.2vw, 100px) var(--bleed-pad) clamp(80px, 16vw, 310px);
 }
 
 /* the decor SVGs are drawn with preserveAspectRatio="none", so the box has to
@@ -544,9 +581,13 @@ video {
   background: var(--surface-blue);
 }
 
+.work-showcase .empty-state {
+  margin-inline: var(--bleed-pad);
+}
+
 .work-showcase-title {
   max-width: 481px;
-  margin: 0 var(--content-pad) clamp(40px, 5.5vw, 105px);
+  margin: 0 var(--bleed-pad) clamp(40px, 5.5vw, 105px);
   color: var(--ink);
   font-size: var(--fs-lead);
   font-weight: 400;
@@ -572,7 +613,7 @@ video {
 .work-grid.work-rail {
   display: flex;
   gap: 20px;
-  padding-inline: var(--content-pad);
+  padding-inline: var(--bleed-pad);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   /* without this the first snap target aligns to the border edge and eats the gutter */
@@ -585,7 +626,7 @@ video {
 }
 
 .work-rail .work-item {
-  flex: 0 0 clamp(260px, 38.9vw, 747px);
+  flex: 0 0 clamp(240px, 26vw, 500px);
   scroll-snap-align: start;
 }
 
@@ -738,7 +779,7 @@ video {
   background: var(--blue);
   transform: scaleX(0);
   transform-origin: left;
-  animation: expertise-fill var(--rotate-ms, 4500ms) linear forwards;
+  animation: expertise-fill var(--rotate-ms, 7000ms) linear forwards;
 }
 
 .expertise.is-paused .expertise-timer {
@@ -781,7 +822,10 @@ video {
   grid-template-rows: auto auto 1fr;
   column-gap: clamp(24px, 3.2vw, 62px);
   row-gap: clamp(20px, 1.6vw, 30px);
-  max-width: 1820px;
+  max-width: var(--shell);
+  /* the Figma panel is 1008px on a 1080 canvas — fill most of the viewport */
+  min-height: min(1008px, calc(100vh - 150px));
+  min-height: min(1008px, calc(100svh - 150px));
   margin-inline: auto;
   padding: clamp(32px, 4vw, 78px) clamp(24px, 2.6vw, 50px) clamp(40px, 2.6vw, 50px);
   border-radius: var(--radius-panel);
@@ -1031,7 +1075,7 @@ video {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.9fr);
   gap: 40px;
-  max-width: 1820px;
+  max-width: var(--shell);
   margin-inline: auto;
   padding-bottom: clamp(60px, 7vw, 132px);
 }
@@ -1109,16 +1153,24 @@ video {
   gap: 19px;
 }
 
-.footer-col a {
+.footer-col a,
+.footer-col button {
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--on-dark-52);
+  font: inherit;
   font-size: var(--fs-md);
   font-weight: 600;
+  text-align: left;
   text-decoration: none;
   text-transform: capitalize;
+  cursor: pointer;
   transition: color 0.2s ease;
 }
 
-.footer-col a:hover {
+.footer-col a:hover,
+.footer-col button:hover {
   color: #fff;
 }
 
@@ -1127,7 +1179,7 @@ video {
   flex-wrap: wrap;
   align-items: center;
   gap: clamp(16px, 2vw, 36px);
-  max-width: 1820px;
+  max-width: var(--shell);
   margin-inline: auto;
   padding-bottom: clamp(24px, 2.1vw, 40px);
   color: var(--on-dark-70);
@@ -1189,11 +1241,37 @@ video {
   white-space: nowrap;
 }
 
+/* shares the .container shell, so the title block left-aligns with the
+ * content below it; only the headline itself is capped for line length */
 .page-intro {
-  max-width: 843px;
   color: var(--ink-65);
   font-size: var(--fs-body);
   line-height: 1.45;
+  /* air between the page title block and the content underneath */
+  padding-bottom: clamp(32px, 4vw, 64px);
+}
+
+/* page headlines wear the home-page look: big, light, ink, blue accent span */
+.page-intro h1 {
+  max-width: 955px;
+  margin: 0.4em 0 0;
+  color: var(--ink);
+  font-size: var(--fs-h2);
+  font-weight: 400;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.page-intro h1 span {
+  color: var(--blue);
+}
+
+/* blurb/description under a collection page's title */
+.collection-intro {
+  max-width: 843px;
+  margin: 0.75em 0 0;
+  color: var(--ink-65);
+  font-size: var(--fs-md);
 }
 
 .empty-state {
@@ -1210,18 +1288,40 @@ video {
   gap: 20px;
 }
 
-.gallery-item img {
+/* tiles are plain image buttons — square crop keeps the grid uniform (the
+ * lightbox shows the full frame), and no chrome so they don't read as buttons */
+.gallery-open {
+  display: block;
   width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.gallery-open img,
+.gallery-open video {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
   border-radius: var(--radius-card);
+}
+
+.gallery-caption {
+  margin: 10px 0 0;
+  color: var(--ink-50);
+  font-size: var(--fs-xs);
 }
 
 .gallery-filter {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: clamp(16px, 1.6vw, 30px);
   margin-bottom: clamp(24px, 2vw, 40px);
 }
 
+/* filter rows (gallery + work index): quiet text, only the active one carries
+ * the blue underline. Article pages keep the chip look via the base .tag. */
 .tag {
   padding: 7px 15px;
   border: 0;
@@ -1239,6 +1339,206 @@ video {
 .tag-active {
   background: var(--blue);
   color: #fff;
+}
+
+.gallery-filter .tag {
+  padding: 0 0 6px;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--ink-50);
+  font-size: var(--fs-sm);
+  text-decoration: none;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.gallery-filter .tag:hover {
+  color: var(--ink);
+}
+
+.gallery-filter .tag-active {
+  border-bottom-color: var(--blue);
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------------ lightbox */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2vh, 24px);
+  padding: clamp(16px, 2.5vw, 40px);
+  background: rgba(18, 18, 24, 0.94);
+  color: #fff;
+}
+
+.lightbox-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lightbox-count {
+  color: var(--on-dark-70);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+}
+
+.lightbox-close {
+  padding: 10px 22px;
+  border: 1px solid var(--on-dark-20);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: #fff;
+  font: inherit;
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.lightbox-close:hover {
+  background: var(--on-dark-10);
+}
+
+.lightbox-main {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) min(30vw, 360px);
+  gap: clamp(16px, 2.5vw, 40px);
+  min-height: 0;
+}
+
+.lightbox-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.lightbox-stage img,
+.lightbox-stage video {
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: var(--radius-card);
+}
+
+.lightbox-info {
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.lightbox-title {
+  margin: 0 0 10px;
+  font-size: var(--fs-lead);
+  font-weight: 500;
+}
+
+.lightbox-desc {
+  margin: 0 0 18px;
+  color: var(--on-dark-70);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+.lightbox-meta {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.lightbox-meta div {
+  display: grid;
+  gap: 2px;
+}
+
+.lightbox-meta dt {
+  color: var(--on-dark-52);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lightbox-meta dd {
+  margin: 0;
+  font-size: var(--fs-sm);
+}
+
+.lightbox-navrow {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.lightbox-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 55px;
+  height: 55px;
+  border: 1px solid var(--on-dark-20);
+  border-radius: 50%;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.lightbox-nav:hover {
+  background: var(--on-dark-10);
+}
+
+.lightbox-thumbs {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 4px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.lightbox-thumb {
+  flex: 0 0 auto;
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--radius-card);
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 0.55;
+  transition:
+    opacity 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.lightbox-thumb img,
+.lightbox-thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lightbox-thumb:hover,
+.lightbox-thumb.is-active {
+  opacity: 1;
+}
+
+.lightbox-thumb.is-active {
+  border-color: var(--blue);
+}
+
+@media (max-width: 900px) {
+  .lightbox-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
 }
 
 .media-frame img,
@@ -1285,6 +1585,317 @@ video {
   font-size: var(--fs-xs);
 }
 
+/* ------------------------------------------------------------ contact modal */
+
+.contact-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px clamp(16px, 3vw, 48px);
+  background: rgba(25, 25, 33, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.contact-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(888px, 100%);
+  /* always fits the viewport — the form scrolls inside if space runs out */
+  max-height: calc(100vh - 32px);
+  max-height: calc(100svh - 32px);
+  border-radius: var(--radius-panel);
+  background: #fff;
+  color: var(--ink);
+}
+
+.contact-modal-head {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 20px 20px 24px;
+  border-bottom: 1px solid var(--ink-10);
+}
+
+.contact-modal-title {
+  margin: 8px 90px 28px 0;
+  font-size: clamp(18px, 2.4vw, 25px);
+  font-weight: 400;
+  text-transform: capitalize;
+  line-height: 1.25;
+}
+
+.contact-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--chip-bg);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.contact-modal-close:hover {
+  background: var(--ink-15);
+}
+
+.contact-modal-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.contact-modal-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.contact-modal-email {
+  height: 55px;
+  padding-inline: 20px;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.contact-modal-social {
+  display: flex;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contact-modal-social img {
+  width: 55px;
+  height: 55px;
+}
+
+.contact-modal-body {
+  min-height: 0;
+  padding: 24px 20px 20px;
+  overflow-y: auto;
+}
+
+.contact-modal-names {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 20px;
+}
+
+.contact-modal-field {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.contact-modal-field span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--fs-sm);
+  text-transform: capitalize;
+}
+
+.contact-modal-field em {
+  color: var(--blue);
+  font-style: normal;
+}
+
+.contact-modal-field input {
+  width: 100%;
+  height: 50px;
+  padding: 16px 10px;
+  border: 0;
+  border-bottom: 1px solid var(--ink-10);
+  border-radius: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+}
+
+.contact-modal-field input::placeholder,
+.contact-modal-field textarea::placeholder {
+  color: var(--ink-50);
+  letter-spacing: -0.02em;
+}
+
+.contact-modal-field input:focus {
+  outline: none;
+  border-bottom-color: var(--blue);
+}
+
+.contact-modal-reasons {
+  margin: 0 0 20px;
+  padding: 0;
+  border: 0;
+}
+
+.contact-modal-reasons legend {
+  margin-bottom: 12px;
+  padding: 0;
+  font-size: var(--fs-sm);
+  text-transform: capitalize;
+}
+
+.contact-modal-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.contact-pill {
+  padding: 15px;
+  border: 1px solid var(--ink-10);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-sm);
+  line-height: 1.25;
+  text-transform: capitalize;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.contact-pill:hover {
+  border-color: var(--ink-50);
+}
+
+.contact-pill.is-selected {
+  border-color: transparent;
+  background: var(--blue);
+  color: #fff;
+}
+
+.contact-modal-textarea textarea {
+  width: 100%;
+  min-height: clamp(110px, 20svh, 206px);
+  padding: 16px 10px;
+  border: 1px solid var(--ink-10);
+  border-radius: var(--radius-card);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+}
+
+.contact-modal-textarea textarea:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+.contact-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.contact-modal-send {
+  height: 55px;
+  padding-inline: 20px;
+}
+
+.contact-send-arrow {
+  width: 20px;
+  height: 20px;
+  transform: rotate(-45deg);
+}
+
+.contact-modal-done {
+  display: grid;
+  justify-items: start;
+  gap: 20px;
+  padding-block: 48px 40px;
+  font-size: var(--fs-md);
+}
+
+/* short laptop screens: tighten the modal so the whole form — Send included —
+ * is visible without scrolling */
+@media (max-height: 800px) {
+  .contact-modal-head {
+    padding-bottom: 16px;
+  }
+
+  .contact-modal-title {
+    margin: 4px 70px 16px 0;
+  }
+
+  .contact-modal-close {
+    width: 44px;
+    height: 44px;
+  }
+
+  .contact-modal-email {
+    min-height: 0;
+    height: 44px;
+  }
+
+  .contact-modal-social img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .contact-modal-body {
+    padding-top: 16px;
+  }
+
+  .contact-modal-field {
+    margin-bottom: 14px;
+  }
+
+  .contact-modal-field input {
+    height: 44px;
+    padding-block: 10px;
+  }
+
+  .contact-modal-reasons {
+    margin-bottom: 14px;
+  }
+
+  .contact-modal-reasons legend {
+    margin-bottom: 8px;
+  }
+
+  .contact-pill {
+    padding: 11px 15px;
+  }
+
+  .contact-modal-textarea textarea {
+    min-height: 96px;
+  }
+
+  .contact-modal-actions {
+    margin-top: 10px;
+  }
+
+  .contact-modal-send {
+    min-height: 0;
+    height: 48px;
+  }
+}
+
+@media (max-width: 700px) {
+  .contact-modal-names {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-modal-title {
+    margin-right: 70px;
+  }
+}
+
 /* -------------------------------------------------------------- adaptations */
 
 @media (max-width: 1100px) {
@@ -1309,6 +1920,8 @@ video {
   .testimonials-panel {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
+    /* stacked layout sizes to its content again */
+    min-height: 0;
   }
 
   .testimonials-panel > .chip,
@@ -1416,10 +2029,6 @@ video {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
   *,
   *::before,
   *::after {

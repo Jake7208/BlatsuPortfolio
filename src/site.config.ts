@@ -43,8 +43,8 @@ export const siteConfig: SiteConfig = {
   /** The person (or studio) behind the site — used as the default post author. */
   author: 'Jaden Robertson',
 
-  /** Public contact email shown in the footer. */
-  email: 'hello@jadenrobertson.com',
+  /** Public contact email shown in the footer and the contact popup. */
+  email: 'Blastoon14@gmail.com',
 
   /** Shown in the footer's location column and the hero's corner rail. */
   location: {

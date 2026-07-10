@@ -13,7 +13,7 @@ export type ExpertiseSlide = {
   fallbackSrc: string
 }
 
-const ROTATE_MS = 4500
+const ROTATE_MS = 7000
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)'
 
@@ -26,16 +26,20 @@ const subscribeToMotionPreference = (onChange: () => void) => {
 /**
  * "What I Offer" — the disciplines take turns: the blue rule sweeps the active
  * item's underline as a dwell timer and the slide switches when it reaches the
- * end. Hover (mouse only) pauses; leaving restarts the dwell. Under
- * prefers-reduced-motion the sweep collapses to a static rule and rotation
- * stops; clicking always picks manually.
+ * end. Hovering the active item (mouse only) pauses the dwell in place;
+ * leaving resumes it from where it stopped. Under prefers-reduced-motion the
+ * sweep collapses to a static rule and rotation stops; clicking always picks
+ * manually.
  */
 export default function Expertise({ slides }: { slides: ExpertiseSlide[] }) {
   const [active, setActive] = React.useState(0)
   // restart token: the timeout and the underline sweep both key off it, so a
-  // tick, a manual pick, or a hover-resume restarts them in lockstep
+  // tick or a manual pick restarts them in lockstep
   const [cycle, setCycle] = React.useState(0)
-  const [paused, setPaused] = React.useState(false)
+  const [hovered, setHovered] = React.useState<number | null>(null)
+  // only hovering the *active* item pauses — tracked by index so a slide that
+  // becomes active under the pointer (click or auto-advance) still pauses
+  const paused = hovered === active
   const reducedMotion = React.useSyncExternalStore(
     subscribeToMotionPreference,
     () => window.matchMedia(REDUCED_MOTION).matches,
@@ -47,13 +51,25 @@ export default function Expertise({ slides }: { slides: ExpertiseSlide[] }) {
     setCycle((c) => c + 1)
   }
 
+  // ms left in the current dwell — carried across pause/resume so hovering
+  // doesn't reset the timer, only a new cycle refills it
+  const remainingRef = React.useRef(ROTATE_MS)
+
+  React.useEffect(() => {
+    remainingRef.current = ROTATE_MS
+  }, [cycle])
+
   React.useEffect(() => {
     if (paused || reducedMotion || slides.length < 2) return
+    const startedAt = Date.now()
     const timer = setTimeout(() => {
       setActive((index) => (index + 1) % slides.length)
       setCycle((c) => c + 1)
-    }, ROTATE_MS)
-    return () => clearTimeout(timer)
+    }, remainingRef.current)
+    return () => {
+      clearTimeout(timer)
+      remainingRef.current = Math.max(0, remainingRef.current - (Date.now() - startedAt))
+    }
   }, [paused, reducedMotion, slides.length, cycle])
 
   return (
@@ -61,15 +77,6 @@ export default function Expertise({ slides }: { slides: ExpertiseSlide[] }) {
       className={`expertise${paused ? ' is-paused' : ''}`}
       aria-labelledby="expertise-title"
       style={{ '--rotate-ms': `${ROTATE_MS}ms` } as React.CSSProperties}
-      onPointerEnter={(event) => {
-        // touch fires enter without a matching leave, which would stall the rotation
-        if (event.pointerType !== 'touch') setPaused(true)
-      }}
-      onPointerLeave={(event) => {
-        if (event.pointerType === 'touch') return
-        setPaused(false)
-        setCycle((c) => c + 1)
-      }}
     >
       <div className="expertise-inner">
         <div className="expertise-media">
@@ -99,7 +106,18 @@ export default function Expertise({ slides }: { slides: ExpertiseSlide[] }) {
 
           <ul className="expertise-list">
             {slides.map((slide, i) => (
-              <li key={slide.label} className={i === active ? 'is-active' : undefined}>
+              <li
+                key={slide.label}
+                className={i === active ? 'is-active' : undefined}
+                onPointerEnter={(event) => {
+                  // touch fires enter without a matching leave, which would stall the rotation
+                  if (event.pointerType !== 'touch') setHovered(i)
+                }}
+                onPointerLeave={(event) => {
+                  if (event.pointerType === 'touch') return
+                  setHovered((h) => (h === i ? null : h))
+                }}
+              >
                 <button type="button" aria-pressed={i === active} onClick={() => pick(i)}>
                   {slide.label}
                 </button>

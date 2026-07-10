@@ -2,9 +2,9 @@ import type { CollectionConfig } from 'payload'
 import { Resend } from 'resend'
 
 const TOPIC_LABELS: Record<string, string> = {
-  work: 'Work together',
-  question: 'A question',
-  hello: 'Just saying hi',
+  job: 'Job Opportunity',
+  inquiry: 'Inquiry',
+  other: 'Other',
 }
 
 const escapeHtml = (s: string) =>
@@ -40,6 +40,7 @@ export const ContactSubmissions: CollectionConfig = {
         }
 
         const topic = doc.topic ? (TOPIC_LABELS[doc.topic] ?? doc.topic) : 'Not specified'
+        const message = doc.message || '(none)'
 
         try {
           const resend = new Resend(process.env.RESEND_API_KEY)
@@ -52,11 +53,11 @@ export const ContactSubmissions: CollectionConfig = {
               <h2>New contact form submission</h2>
               <p><strong>Name:</strong> ${escapeHtml(doc.name)}</p>
               <p><strong>Email:</strong> ${escapeHtml(doc.email)}</p>
-              <p><strong>Topic:</strong> ${escapeHtml(topic)}</p>
+              <p><strong>Reason:</strong> ${escapeHtml(topic)}</p>
               <p><strong>Message:</strong></p>
-              <p>${escapeHtml(doc.message).replace(/\n/g, '<br />')}</p>
+              <p>${escapeHtml(message).replace(/\n/g, '<br />')}</p>
             `,
-            text: `New contact form submission\n\nName: ${doc.name}\nEmail: ${doc.email}\nTopic: ${topic}\n\n${doc.message}`,
+            text: `New contact form submission\n\nName: ${doc.name}\nEmail: ${doc.email}\nReason: ${topic}\n\n${message}`,
           })
           if (error) {
             req.payload.logger.error({ err: error }, 'Resend rejected contact notification email')
@@ -81,17 +82,18 @@ export const ContactSubmissions: CollectionConfig = {
     },
     {
       name: 'topic',
+      label: 'Reason for contact',
       type: 'select',
       options: [
-        { label: 'Work together', value: 'work' },
-        { label: 'A question', value: 'question' },
-        { label: 'Just saying hi', value: 'hello' },
+        { label: 'Job Opportunity', value: 'job' },
+        { label: 'Inquiry', value: 'inquiry' },
+        { label: 'Other', value: 'other' },
       ],
     },
     {
       name: 'message',
+      label: 'Additional information',
       type: 'textarea',
-      required: true,
     },
   ],
 }

@@ -5,6 +5,7 @@ import React from 'react'
 import config from '@/payload.config'
 import { siteConfig } from '@/site.config'
 import CaseStudyGrid from '@/components/CaseStudyGrid'
+import { ContactButton } from '@/components/ContactModal'
 import CollectionsRail from '@/components/CollectionsRail'
 import Expertise from '@/components/Expertise'
 import JournalList from '@/components/JournalList'
@@ -31,12 +32,12 @@ export default async function HomePage() {
   const [collectionsRes, featuredRes, journalRes, testimonialRes, ...disciplineRes] =
     await Promise.all([
       payload.find({
-        collection: 'tags',
-        where: { featured: { equals: true } },
+        collection: 'collections',
         limit: 8,
-        sort: 'name',
+        // drag order from the admin list view
+        sort: '_order',
         depth: 1,
-        select: { name: true, blurb: true, cover: true },
+        select: { name: true, slug: true, blurb: true, cover: true },
       }),
       payload.find({
         collection: 'case-studies',
@@ -119,10 +120,10 @@ export default async function HomePage() {
             <span>Marketing Expert</span>
           </h1>
 
-          <Link href="/contact" className="btn btn-primary btn-lg">
+          <ContactButton className="btn btn-primary btn-lg">
             Get In Touch
             <ArrowRight className="btn-arrow" />
-          </Link>
+          </ContactButton>
         </div>
 
         <div className="hero-rail">
@@ -180,7 +181,7 @@ export default async function HomePage() {
           <CaseStudyGrid posts={featured} className="work-rail" />
         ) : (
           <div className="empty-state">
-            <p>Nothing here yet — feature a tag with a cover, or publish a case study.</p>
+            <p>Nothing here yet — add a collection with a cover, or publish a case study.</p>
           </div>
         )}
       </section>

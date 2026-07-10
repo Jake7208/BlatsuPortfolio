@@ -11,7 +11,8 @@ import { mediaInfo, ratioFor } from '@/lib/media'
 
 export const metadata: Metadata = {
   title: 'Gallery',
-  description: 'GALLERY_PAGE_DESCRIPTION',
+  description:
+    'A visual archive of covers, designs and photography by Jaden Robertson from across the anime and manga industry.',
 }
 
 type Props = { searchParams: Promise<{ tag?: string }> }
@@ -80,7 +81,9 @@ export default async function GalleryPage({ searchParams }: Props) {
     <>
       <section className="page-intro container">
         <p className="eyebrow">Gallery / {tagged.length}</p>
-        <h1>GALLERY_PAGE_HEADLINE</h1>
+        <h1>
+          A <span>visual archive</span> — covers, designs and shoots from across the industry.
+        </h1>
         {tagNames.length > 0 && (
           <nav className="gallery-filter">
             <Link href="/gallery" className={`tag ${!activeTag ? 'tag-active' : ''}`}>
