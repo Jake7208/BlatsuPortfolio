@@ -72,6 +72,7 @@ export interface Config {
     'case-studies': CaseStudy;
     collections: Collection;
     blog: Blog;
+    videos: Video;
     tags: Tag;
     testimonials: Testimonial;
     'contact-submissions': ContactSubmission;
@@ -88,6 +89,7 @@ export interface Config {
     'case-studies': CaseStudiesSelect<false> | CaseStudiesSelect<true>;
     collections: CollectionsSelect<false> | CollectionsSelect<true>;
     blog: BlogSelect<false> | BlogSelect<true>;
+    videos: VideosSelect<false> | VideosSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
     'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
@@ -101,8 +103,12 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    homepage: Homepage;
+  };
+  globalsSelect: {
+    homepage: HomepageSelect<false> | HomepageSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -295,6 +301,9 @@ export interface CaseStudy {
     | null;
   location?: string | null;
   year?: number | null;
+  /**
+   * The case-study page crops this to a wide banner. Edit the image and drag the focal point to choose what stays centered — the preview below shows the result.
+   */
   mainMedia?: (string | null) | Media;
   content?:
     | (
@@ -310,6 +319,19 @@ export interface CaseStudy {
             id?: string | null;
             blockName?: string | null;
             blockType: 'mediaBlock';
+          }
+        | {
+            /**
+             * Upload the video to YouTube (unlisted works fine), then paste its link.
+             */
+            url: string;
+            /**
+             * Optional — shown under the video.
+             */
+            caption?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'videoEmbed';
           }
       )[]
     | null;
@@ -338,9 +360,12 @@ export interface Blog {
    * Short teaser shown on cards and used as the SEO description.
    */
   excerpt?: string | null;
+  /**
+   * The post page crops this to a wide banner. Edit the image and drag the focal point to choose what stays centered — the preview below shows the result.
+   */
   mainMedia?: (string | null) | Media;
   /**
-   * The post itself — headings, text, images and video all live here.
+   * The post itself — headings, text, images and video all live here. For long videos, add a “YouTube Video” block (via the + menu or /) instead of uploading the file.
    */
   body?: {
     root: {
@@ -357,6 +382,37 @@ export interface Blog {
     };
     [k: string]: unknown;
   } | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Videography portfolio — each entry shows on the Videography page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "videos".
+ */
+export interface Video {
+  id: string;
+  title: string;
+  /**
+   * Upload the video to YouTube (unlisted works fine), then paste its link.
+   */
+  youtubeUrl: string;
+  /**
+   * Newest first on the page.
+   */
+  publishedAt?: string | null;
+  year?: number | null;
+  roles?: string | null;
+  /**
+   * A sentence or two shown under the player.
+   */
+  description?: string | null;
+  /**
+   * Optional cover still shown before the video plays. Leave empty to use YouTube’s own thumbnail.
+   */
+  thumbnail?: (string | null) | Media;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -486,6 +542,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'blog';
         value: string | Blog;
+      } | null)
+    | ({
+        relationTo: 'videos';
+        value: string | Video;
       } | null)
     | ({
         relationTo: 'tags';
@@ -673,6 +733,14 @@ export interface CaseStudiesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        videoEmbed?:
+          | T
+          | {
+              url?: T;
+              caption?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;
@@ -705,6 +773,22 @@ export interface BlogSelect<T extends boolean = true> {
   excerpt?: T;
   mainMedia?: T;
   body?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "videos_select".
+ */
+export interface VideosSelect<T extends boolean = true> {
+  title?: T;
+  youtubeUrl?: T;
+  publishedAt?: T;
+  year?: T;
+  roles?: T;
+  description?: T;
+  thumbnail?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -799,6 +883,44 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage".
+ */
+export interface Homepage {
+  id: string;
+  /**
+   * The rotation in the “What I Offer” section on the home page. Pick the image each discipline shows while it’s highlighted. Leave the image empty to automatically feature the newest case study tagged with the same name.
+   */
+  offer?:
+    | {
+        label: string;
+        /**
+         * Shown while this discipline is highlighted.
+         */
+        image?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage_select".
+ */
+export interface HomepageSelect<T extends boolean = true> {
+  offer?:
+    | T
+    | {
+        label?: T;
+        image?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

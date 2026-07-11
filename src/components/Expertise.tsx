@@ -129,12 +129,14 @@ export default function Expertise({ slides }: { slides: ExpertiseSlide[] }) {
             ))}
           </ul>
 
+          {/* one general line that fits whichever discipline is active */}
           <p className="expertise-note">
-            As a graphic designer I created and produced content from all types of media.
+            From design and photography to full campaigns, I create and produce content across
+            all types of media.
           </p>
 
           <Link href="/work" className="btn btn-primary">
-            Learn More
+            Case Studies
           </Link>
         </div>
       </div>

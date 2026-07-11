@@ -18,9 +18,10 @@ import { mediaInfo } from '@/lib/media'
 // statically rendered, refreshed in the background at most once a minute
 export const revalidate = 60
 
-/** The disciplines listed in the What I Offer rotation — labels must match tag
- * names in the admin panel for their featured work to appear; until then each
- * slide shows its static fallback so the rotation is visible out of the box. */
+/** The What I Offer rotation before anything is set in the admin — the
+ * Homepage global (admin sidebar → Globals → Homepage) overrides labels and
+ * images; a row without an image falls back to the newest case study tagged
+ * with the same name, then to these static files. */
 const DISCIPLINES = [
   { label: 'Graphic Design', fallbackSrc: '/offer/graphic-design.png' },
   { label: 'Photography', fallbackSrc: '/offer/photography.png' },
@@ -29,6 +30,13 @@ const DISCIPLINES = [
 
 export default async function HomePage() {
   const payload = await getPayload({ config: await config })
+
+  // fetched first — its rows decide which discipline tags to query below
+  const homepage = await payload.findGlobal({ slug: 'homepage', depth: 1 })
+  const offerRows =
+    homepage.offer && homepage.offer.length > 0
+      ? homepage.offer
+      : DISCIPLINES.map(({ label }) => ({ label, image: null }))
 
   const [collectionsRes, featuredRes, journalRes, testimonialRes, mediaFeaturedRes, ...disciplineRes] =
     await Promise.all([
@@ -92,8 +100,9 @@ export default async function HomePage() {
         limit: 8,
         depth: 1,
       }),
-      // newest piece of work per discipline, for the What I Offer rotation
-      ...DISCIPLINES.map(({ label }) =>
+      // newest piece of work per discipline — the fallback image for rows
+      // where no image was picked in the Homepage global
+      ...offerRows.map(({ label }) =>
         payload.find({
           collection: 'case-studies',
           where: {
@@ -112,10 +121,11 @@ export default async function HomePage() {
   const journal = journalRes.docs
   const testimonials = testimonialRes.docs
   const featuredMedia = mediaFeaturedRes.docs
-  const expertiseSlides = DISCIPLINES.map(({ label, fallbackSrc }, i) => ({
-    label,
-    fallbackSrc,
-    media: mediaInfo(disciplineRes[i]?.docs[0]?.mainMedia),
+  const expertiseSlides = offerRows.map((row, i) => ({
+    label: row.label,
+    fallbackSrc: DISCIPLINES[i % DISCIPLINES.length].fallbackSrc,
+    // the admin-picked image wins; otherwise the newest matching case study
+    media: mediaInfo(row.image) ?? mediaInfo(disciplineRes[i]?.docs[0]?.mainMedia),
   }))
 
   let heroCovers = featuredMedia
@@ -213,8 +223,8 @@ export default async function HomePage() {
 
       {testimonials.length > 0 && (
         <section className="testimonials" aria-labelledby="testimonials-title">
-          <div className="testimonials-panel reveal">
-            <p className="chip chip-light">Testimonials</p>
+          <div className="testimonials-inner reveal">
+            <p className="chip">Testimonials</p>
             <h2 className="testimonials-title" id="testimonials-title">
               Hear what <span>others had to say.</span>
             </h2>

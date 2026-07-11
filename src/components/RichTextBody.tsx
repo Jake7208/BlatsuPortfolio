@@ -1,17 +1,33 @@
 import React from 'react'
 import { RichText, type JSXConvertersFunction } from '@payloadcms/richtext-lexical/react'
+import type { DefaultNodeTypes, SerializedBlockNode } from '@payloadcms/richtext-lexical'
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 
 import type { Media } from '@/payload-types'
 import { mediaInfo } from '@/lib/media'
+import VideoEmbed from '@/components/VideoEmbed'
+
+type VideoEmbedFields = {
+  blockType: 'videoEmbed'
+  url?: string | null
+  caption?: string | null
+}
+
+type NodeTypes = DefaultNodeTypes | SerializedBlockNode<VideoEmbedFields>
 
 /**
  * Renders a Lexical rich-text field. The default converters cover headings,
  * lists, links etc. — uploads are overridden so videos get a <video> tag
- * instead of the default <img>.
+ * instead of the default <img>, and the videoEmbed block becomes a YouTube
+ * iframe.
  */
-const converters: JSXConvertersFunction = ({ defaultConverters }) => ({
+const converters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
   ...defaultConverters,
+  blocks: {
+    videoEmbed: ({ node }) => (
+      <VideoEmbed url={node.fields.url} caption={node.fields.caption} />
+    ),
+  },
   upload: ({ node }) => {
     const info = mediaInfo(node.value as Media | string | null)
     if (!info) return null

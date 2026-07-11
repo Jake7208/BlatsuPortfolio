@@ -105,15 +105,18 @@ body {
   font-size: var(--fs-sm);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 body > main {
   flex: 1 0 auto;
-  /* even a near-empty page keeps the footer below the first viewport;
-   * 100px stays just under the sticky header's ~111px slot so the footer
-   * always lands past the fold */
-  min-height: calc(100vh - 100px);
-  min-height: calc(100svh - 100px);
+  /* Ensure the main content area always fills at least the entire viewport height
+   * so the sticky footer is completely pushed below the fold and doesn't peek out. */
+  min-height: 100vh;
+  min-height: 100svh;
+  background: #fff;
+  position: relative;
+  z-index: 2;
 }
 
 img,
@@ -337,8 +340,8 @@ video {
     visibility 0.18s;
 }
 
-.nav-item.has-children:hover .nav-menu,
-.nav-item.has-children:focus-within .nav-menu,
+/* visibility is driven entirely by .is-open (hover + click both set it in JS)
+ * so picking a link can hide the menu even while the pointer is still on it */
 .nav-item.is-open .nav-menu {
   opacity: 1;
   visibility: visible;
@@ -781,13 +784,15 @@ video {
 }
 
 /* the decor SVGs are drawn with preserveAspectRatio="none", so the box has to
- * carry their aspect ratio or they stretch into bars */
+ * carry their aspect ratio or they stretch into bars; each one is sized and
+ * anchored to end inside its own section — only viewport edges may crop them,
+ * never the seam where the next section starts */
 .about-decor {
   position: absolute;
-  bottom: 0;
+  bottom: clamp(32px, 4vw, 64px);
   left: 0;
   z-index: 0;
-  width: clamp(280px, 35vw, 550px);
+  width: clamp(260px, 32vw, 500px);
   aspect-ratio: 1;
   pointer-events: none;
 }
@@ -930,7 +935,7 @@ video {
 
 .expertise {
   position: relative;
-  overflow: hidden;
+  z-index: 2;
   padding-block: clamp(60px, 7.9vw, 151px) clamp(40px, 3vw, 60px);
 }
 
@@ -941,14 +946,14 @@ video {
   grid-template-columns: minmax(0, 900fr) minmax(0, 800fr);
   gap: clamp(30px, 9vw, 173px);
   align-items: start;
-  max-width: var(--shell);
-  margin-inline: auto;
-  padding-inline: var(--content-pad);
+  padding-inline: var(--bleed-pad);
 }
 
 /* the slides stack in one frame and crossfade as the rotation advances */
 .expertise-media {
   position: relative;
+  width: 100%;
+  max-width: 100%;
   aspect-ratio: 900 / 904;
   overflow: hidden;
   border-radius: var(--radius-card);
@@ -1045,12 +1050,14 @@ video {
   line-height: 1.3;
 }
 
+/* bleeds slightly off the right viewport edge but stays fully visible
+ * vertically, so no flat cut at the section seam */
 .expertise-decor {
   position: absolute;
-  top: 60%;
-  left: 74%;
-  z-index: 0;
-  width: clamp(300px, 41vw, 788px);
+  right: calc(clamp(300px, 36vw, 620px) / -2);
+  bottom: clamp(-180px, -10vw, -80px);
+  z-index: 10;
+  width: clamp(300px, 36vw, 620px);
   aspect-ratio: 1;
   pointer-events: none;
 }
@@ -1058,34 +1065,20 @@ video {
 /* ------------------------------------------------------------- testimonials */
 
 .testimonials {
-  padding: clamp(40px, 2.5vw, 48px) var(--page-pad);
+  padding: clamp(60px, 6vw, 110px) var(--page-pad);
 }
 
-.testimonials-panel {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.85fr);
-  grid-template-rows: auto auto 1fr;
-  column-gap: clamp(24px, 3.2vw, 62px);
-  row-gap: clamp(20px, 1.6vw, 30px);
-  max-width: var(--shell);
-  /* the Figma panel is 1008px on a 1080 canvas — fill most of the viewport */
-  min-height: min(1008px, calc(100vh - 150px));
-  min-height: min(1008px, calc(100svh - 150px));
+.testimonials-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(24px, 2.5vw, 40px);
+  max-width: 900px;
   margin-inline: auto;
-  padding: clamp(24px, 3vw, 56px) clamp(20px, 2.5vw, 40px);
-  border-radius: var(--radius-panel);
-  background: var(--ink);
-  color: #fff;
-}
-
-.testimonials-panel > .chip {
-  grid-area: 1 / 1;
-  justify-self: start;
+  text-align: center;
 }
 
 .testimonials-title {
-  grid-area: 2 / 1;
-  max-width: 514px;
   margin: 0;
   font-size: var(--fs-h2);
   font-weight: 400;
@@ -1096,99 +1089,114 @@ video {
   color: var(--blue);
 }
 
-/* lets the rail and the quote card place themselves on the panel's grid */
-.testimonial-list {
-  display: contents;
-}
-
-.testimonial-rail {
-  grid-area: 3 / 1;
-  align-self: end;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.testimonial-pill {
-  padding: 10px 24px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: var(--radius-pill);
-  background: transparent;
-  color: #fff;
-  font: inherit;
-  font-size: var(--fs-sm);
-  font-weight: 500;
-  line-height: 1.25;
-  text-align: left;
-  text-transform: capitalize;
-  cursor: pointer;
-  transition:
-    background-color 0.25s ease,
-    border-color 0.25s ease;
-}
-
-.testimonial-pill:hover:not(.is-active) {
-  border-color: var(--on-dark-30);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.testimonial-pill.is-active {
-  border-color: var(--blue);
-  background: var(--blue);
-  color: #fff;
-}
-
 .testimonial {
-  grid-area: 1 / 2 / -1 / 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 30px;
-  margin: 0;
-  padding: clamp(24px, 3vw, 48px);
-  border: 1px solid var(--on-dark-20);
-  border-radius: var(--radius-panel);
-  box-shadow: 0 4px 42px -17px rgba(25, 25, 33, 0.25);
+  gap: clamp(20px, 2vw, 28px);
+}
+
+.testimonial-mark {
+  width: clamp(24px, 2.5vw, 36px);
+  height: auto;
+  color: var(--blue);
+}
+
+.testimonial-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 2vw, 28px);
+  animation: testimonial-in 0.45s ease both;
+}
+
+@keyframes testimonial-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .testimonial-quote {
-  width: min(850px, 100%);
   margin: 0;
-  font-size: clamp(1.05rem, 1.25vw, 19px);
-  line-height: 1.5;
+  max-width: 850px;
+  font-size: clamp(1.05rem, 1.5vw, 22px);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--ink);
+  text-wrap: balance;
 }
 
 .testimonial-who {
   display: flex;
   align-items: center;
-  gap: 10px;
-  width: min(850px, 100%);
+  gap: 12px;
 }
 
 .testimonial-avatar {
   flex: 0 0 auto;
-  width: 55px;
-  height: 55px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   object-fit: cover;
 }
 
+.testimonial-meta {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
 .testimonial-name {
-  color: var(--blue);
+  color: var(--ink);
   font-size: var(--fs-md);
+  font-weight: 600;
 }
 
 .testimonial-role {
-  font-size: var(--fs-md);
+  color: var(--ink-50);
+  font-size: var(--fs-sm);
 }
 
-.testimonial-company {
-  display: block;
-  color: var(--on-dark-50);
+.testimonial-controls {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.testimonial-nav {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--ink-15);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.testimonial-nav:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.testimonial-nav .arrow-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.testimonial-count {
+  min-width: 64px;
   font-size: var(--fs-sm);
-  font-style: italic;
+  color: var(--ink-50);
+  letter-spacing: 0.08em;
 }
 
 /* --------------------------------------------------------------------- blog */
@@ -1203,12 +1211,13 @@ video {
   padding: clamp(60px, 6.4vw, 123px) var(--content-pad) clamp(60px, 5vw, 95px);
 }
 
+/* bleeds off the left viewport edge but ends above the footer seam */
 .blog-decor {
   position: absolute;
-  top: 56%;
-  left: -15.36%;
+  bottom: clamp(24px, 3vw, 56px);
+  left: -6%;
   z-index: 0;
-  width: 42%;
+  width: clamp(280px, 34vw, 520px);
   aspect-ratio: 805.133 / 739;
   pointer-events: none;
 }
@@ -1319,10 +1328,18 @@ video {
 /* ------------------------------------------------------------------- footer */
 
 .site-footer {
-  position: relative;
+  position: relative; /* fallback */
   background: var(--ink);
   color: #fff;
   padding: clamp(40px, 3.4vw, 66px) var(--content-pad) 0;
+}
+
+@media (min-width: 901px) and (min-height: 700px) {
+  .site-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+  }
 }
 
 .footer-inner {
@@ -1807,6 +1824,199 @@ video {
   border-radius: var(--radius-card);
 }
 
+/* article hero media: breathing room before the body copy, and portrait
+ * uploads are capped and cropped instead of towering over the page */
+.post-hero-media {
+  margin-bottom: clamp(32px, 5vw, 64px);
+}
+
+.post-hero-media .media-frame img,
+.post-hero-media .media-frame video {
+  max-height: min(70vh, 720px);
+  object-fit: cover;
+}
+
+/* YouTube embeds (videoEmbed block) in post bodies and case-study content */
+.video-embed {
+  margin: 32px 0;
+}
+
+.video-embed iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--radius-card);
+}
+
+.video-embed figcaption {
+  margin-top: 10px;
+  font-size: var(--fs-sm);
+  color: var(--ink-50);
+}
+
+/* ------------------------------------------------------------- videography */
+
+.video-list {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(56px, 8vw, 110px);
+  max-width: 1100px;
+  margin-inline: auto;
+  padding-block: clamp(24px, 4vw, 56px);
+}
+
+/* shared 16:9 frame for the cover still and the swapped-in player */
+.video-stage {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-card);
+  background: #101016;
+}
+
+.video-stage iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.video-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.video-cover:hover img {
+  transform: scale(1.02);
+}
+
+/* the whole frame is the play button; the badge is just its visual */
+.video-play-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+
+.video-play-badge {
+  display: grid;
+  place-items: center;
+  width: clamp(56px, 8vw, 76px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s ease, background-color 0.25s ease, opacity 0.3s ease;
+}
+
+.video-cover:hover .video-play-badge {
+  background: #fff;
+  transform: scale(1.06);
+}
+
+/* the centered badge yields to the cursor pill while a mouse is over the frame */
+.is-hovering .video-play-badge {
+  opacity: 0;
+}
+
+/* "Play video" pill that trails the cursor — the outer span is positioned by
+ * JS via transform, whose short transition produces the trailing feel; the
+ * inner chip owns the pop-in scale so it can't distort the position */
+.video-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: transform 0.36s ease-out, opacity 0.2s ease;
+}
+
+.is-hovering .video-cursor {
+  opacity: 1;
+}
+
+.video-cursor-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  background: var(--blue);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  scale: 0.6;
+  transition: scale 0.2s ease;
+}
+
+.is-hovering .video-cursor-chip {
+  scale: 1;
+}
+
+.video-cursor .play-icon {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+}
+
+.play-icon {
+  width: 42%;
+  height: 42%;
+  /* slight nudge toward the point so the triangle reads centered */
+  margin-left: 3.5%;
+}
+
+.video-card-body {
+  margin-top: 20px;
+}
+
+.video-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.video-card-head h2 {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.video-card-meta {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-50);
+  white-space: nowrap;
+}
+
+.video-card-desc {
+  margin: 10px 0 0;
+  max-width: 720px;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--ink-65);
+}
+
 .post-body,
 .rich-text {
   max-width: 843px;
@@ -2208,25 +2418,6 @@ video {
     padding-top: 0;
   }
 
-  .testimonials-panel {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: none;
-    /* stacked layout sizes to its content again */
-    min-height: 0;
-  }
-
-  .testimonials-panel > .chip,
-  .testimonials-title,
-  .testimonial-rail,
-  .testimonial {
-    grid-area: auto;
-  }
-
-  .testimonial-rail {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
 }
 
 @media (max-width: 900px) {
@@ -2250,6 +2441,9 @@ video {
     top: calc(100% + 10px);
     left: 0;
     right: 0;
+    /* the desktop rule's justify-self: start would shrink this absolutely
+     * positioned grid child to its content — stretch spans the whole bar */
+    justify-self: stretch;
     z-index: 20;
     display: none;
     flex-direction: column;
@@ -2269,6 +2463,8 @@ video {
   .site-nav > .nav-link,
   .nav-item.has-children > .nav-link {
     padding: 10px 12px;
+    /* the contact <button> would otherwise center its label */
+    text-align: left;
   }
 
   .nav-item.has-children {
@@ -2296,11 +2492,6 @@ video {
     display: block;
   }
 
-  .nav-item.has-children:hover .nav-menu,
-  .nav-item.has-children:focus-within .nav-menu {
-    display: block;
-  }
-
   .nav-cta {
     height: 50px;
     padding-inline: 20px;
@@ -2317,38 +2508,6 @@ video {
 }
 
 @media (max-width: 768px) {
-  /* Testimonials mobile adjustments */
-  .testimonials-panel {
-    padding: 36px 20px;
-    row-gap: 24px;
-  }
-
-  .testimonial-rail {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    width: 100%;
-    padding-bottom: 12px;
-    margin-block: 8px 16px;
-    scrollbar-width: none;
-  }
-  
-  .testimonial-rail::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .testimonial-pill {
-    flex: 0 0 auto;
-    padding: 8px 14px;
-    font-size: var(--fs-xs);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-  }
-  
-  .testimonial {
-    padding: 28px 20px;
-    gap: 24px;
-  }
-  
   .testimonial-quote {
     font-size: var(--fs-body);
   }
@@ -2743,6 +2902,18 @@ video {
   font-weight: 700;
   margin: 0 0 8px 0;
   letter-spacing: -0.01em;
+}
+
+.comment-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-field span {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--ink);
 }
 
 .comment-form-row {

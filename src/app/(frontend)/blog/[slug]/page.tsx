@@ -84,7 +84,7 @@ export default async function BlogPostPage({ params }: Props) {
       </header>
 
       {hero && (
-        <div className="container">
+        <div className="post-hero-media container">
           <Media
             src={hero.url}
             srcSet={hero.srcSet}
@@ -93,6 +93,8 @@ export default async function BlogPostPage({ params }: Props) {
             mimeType={hero.mime}
             width={hero.width}
             height={hero.height}
+            focalX={hero.focalX}
+            focalY={hero.focalY}
           />
         </div>
       )}

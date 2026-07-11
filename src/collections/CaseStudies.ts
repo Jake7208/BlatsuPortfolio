@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { videoEmbedBlock } from '../blocks/videoEmbed'
+
 const slugify = (value: string): string =>
   value
     .toLowerCase()
@@ -125,6 +127,21 @@ export const CaseStudies: CollectionConfig = {
       type: 'upload',
       relationTo: 'media',
       label: 'Main Image / Video',
+      admin: {
+        description:
+          'The case-study page crops this to a wide banner. Edit the image and drag the focal point to choose what stays centered — the preview below shows the result.',
+      },
+    },
+    {
+      // renders the chosen cover in the page's banner frame so the crop is
+      // visible before publishing — stores nothing
+      name: 'coverPreview',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '/components/admin/CoverPreview',
+        },
+      },
     },
     {
       name: 'content',
@@ -163,6 +180,7 @@ export const CaseStudies: CollectionConfig = {
             },
           ],
         },
+        videoEmbedBlock,
       ],
     },
   ],

@@ -9,6 +9,9 @@ type Props = {
   width?: number | null
   height?: number | null
   loading?: 'lazy' | 'eager'
+  /** focal point percentages from the admin — only visible when a frame crops the image */
+  focalX?: number
+  focalY?: number
 }
 
 /**
@@ -24,7 +27,14 @@ export default function Media({
   width,
   height,
   loading = 'lazy',
+  focalX,
+  focalY,
 }: Props) {
+  const objectPosition =
+    focalX !== undefined || focalY !== undefined
+      ? `${focalX ?? 50}% ${focalY ?? 50}%`
+      : undefined
+
   return (
     <div className="media-frame">
       {mimeType?.startsWith('video/') ? (
@@ -40,6 +50,7 @@ export default function Media({
           height={height ?? undefined}
           loading={loading}
           decoding="async"
+          style={objectPosition ? { objectPosition } : undefined}
         />
       )}
     </div>

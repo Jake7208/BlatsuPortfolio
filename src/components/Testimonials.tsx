@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 
 import type { Testimonial } from '@/payload-types'
+import { ArrowLeft, ArrowRight, Quote } from '@/components/icons'
 import { mediaInfo } from '@/lib/media'
 
 /** Only the fields the list renders — lets pages query with `select`. */
@@ -11,9 +12,12 @@ export type TestimonialCard = Pick<
   'id' | 'name' | 'role' | 'company' | 'companyLogo' | 'image' | 'quote'
 >
 
+const pad = (n: number) => String(n).padStart(2, '0')
+
 /**
- * Quote switcher — a rail of names on the left, the selected quote on the right.
- * Follows the same `aria-pressed` button convention as the work and gallery filters.
+ * One oversized quote at a time, typography-led: quote mark, the quote itself,
+ * an avatar chip, and arrow navigation with a counter. Keyed on the active
+ * index so each switch replays the fade-in.
  */
 export default function Testimonials({ items }: { items: TestimonialCard[] }) {
   const [active, setActive] = useState(0)
@@ -22,47 +26,59 @@ export default function Testimonials({ items }: { items: TestimonialCard[] }) {
 
   const current = items[active] ?? items[0]
   const portrait = mediaInfo(current.image)
+  const detail = [current.role, current.company].filter(Boolean).join(' — ')
+  const step = (dir: 1 | -1) => setActive((i) => (i + dir + items.length) % items.length)
 
   return (
-    <div className="testimonial-list">
-      <div className="testimonial-rail">
-        {items.map((item, i) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`testimonial-pill${i === active ? ' is-active' : ''}`}
-            aria-pressed={i === active}
-            aria-controls="testimonial-panel"
-            onClick={() => setActive(i)}
-          >
-            {[item.name, item.company].filter(Boolean).join(', ')}
-          </button>
-        ))}
-      </div>
+    <div className="testimonial" aria-live="polite">
+      <Quote className="testimonial-mark" />
 
-      <figure className="testimonial" id="testimonial-panel">
+      <div className="testimonial-body" key={active}>
         <blockquote className="testimonial-quote">&ldquo;{current.quote}&rdquo;</blockquote>
 
-        <figcaption className="testimonial-who">
+        <div className="testimonial-who">
           {portrait && (
             // eslint-disable-next-line @next/next/no-img-element -- media served from object storage, dimensions vary
             <img
               className="testimonial-avatar"
               src={portrait.url}
               srcSet={portrait.srcSet ?? undefined}
-              sizes={portrait.srcSet ? '55px' : undefined}
+              sizes={portrait.srcSet ? '48px' : undefined}
               alt={portrait.alt || current.name}
               loading="lazy"
               decoding="async"
             />
           )}
-          <span>
+          <span className="testimonial-meta">
             <span className="testimonial-name">{current.name}</span>
-            {current.role && <span className="testimonial-role">, {current.role}</span>}
-            {current.company && <span className="testimonial-company">{current.company}</span>}
+            {detail && <span className="testimonial-role">{detail}</span>}
           </span>
-        </figcaption>
-      </figure>
+        </div>
+      </div>
+
+      {items.length > 1 && (
+        <div className="testimonial-controls">
+          <button
+            type="button"
+            className="testimonial-nav"
+            onClick={() => step(-1)}
+            aria-label="Previous testimonial"
+          >
+            <ArrowLeft />
+          </button>
+          <span className="testimonial-count">
+            {pad(active + 1)} / {pad(items.length)}
+          </span>
+          <button
+            type="button"
+            className="testimonial-nav"
+            onClick={() => step(1)}
+            aria-label="Next testimonial"
+          >
+            <ArrowRight />
+          </button>
+        </div>
+      )}
     </div>
   )
 }

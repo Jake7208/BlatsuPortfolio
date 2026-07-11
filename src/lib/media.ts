@@ -8,6 +8,9 @@ export type MediaInfo = {
   height: number | null
   /** responsive candidates built from the generated image sizes */
   srcSet: string | null
+  /** admin-chosen focal point (percentages) — steers object-position when a frame crops */
+  focalX: number
+  focalY: number
 }
 
 /**
@@ -32,6 +35,8 @@ export function mediaInfo(m?: string | Partial<Media> | null): MediaInfo | null 
     height: m.height ?? null,
     srcSet:
       candidates.length > 1 ? candidates.map((c) => `${c.url} ${c.width}w`).join(', ') : null,
+    focalX: typeof m.focalX === 'number' ? m.focalX : 50,
+    focalY: typeof m.focalY === 'number' ? m.focalY : 50,
   }
 }
 

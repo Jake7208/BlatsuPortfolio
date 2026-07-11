@@ -34,13 +34,17 @@ export default async function CommentsSection({ postId, postType }: Props) {
 
   return (
     <section className="section container">
-      <div className="section-head">
-        <h2>
-          {totalDocs > 0 ? `${totalDocs} ${totalDocs === 1 ? 'comment' : 'comments'}` : 'Comments'}
-        </h2>
-      </div>
-
+      {/* the head sits inside .comments so it lines up with the 843px
+          article column instead of the full-width container edge */}
       <div className="comments">
+        <div className="section-head">
+          <h2>
+            {totalDocs > 0
+              ? `${totalDocs} ${totalDocs === 1 ? 'comment' : 'comments'}`
+              : 'Comments'}
+          </h2>
+        </div>
+
         {docs.length > 0 ? (
           <ol className="comment-list">
             {docs.map((comment) => (

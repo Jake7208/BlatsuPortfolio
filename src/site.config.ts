@@ -84,6 +84,7 @@ export const siteConfig: SiteConfig = {
       label: 'Work',
       children: [
         { href: '/work', label: 'Case studies' },
+        { href: '/videos', label: 'Videography' },
         { href: '/blog', label: 'Blog' },
         { href: '/gallery', label: 'Gallery' },
       ],
@@ -95,9 +96,8 @@ export const siteConfig: SiteConfig = {
     { href: '/', label: 'Home' },
     { href: '/contact', label: 'Contact' },
     { href: '/#about', label: 'About' },
-    { href: '/work', label: 'Graphic Design' },
-    { href: '/work', label: 'Video Editing' },
-    { href: '/work', label: 'Photography' },
+    { href: '/gallery', label: 'Gallery' },
+    { href: '/videos', label: 'Video Editing' },
   ],
 
   credit: { label: 'Site By Jacob Price' },

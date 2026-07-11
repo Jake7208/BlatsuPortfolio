@@ -17,6 +17,8 @@ import { Tags } from './collections/Tags'
 import { Testimonials } from './collections/Testimonials'
 import { ContactSubmissions } from './collections/ContactSubmissions'
 import { Comments } from './collections/Comments'
+import { Videos } from './collections/Videos'
+import { Homepage } from './globals/Homepage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -34,11 +36,13 @@ export default buildConfig({
     CaseStudies,
     Collections,
     Blog,
+    Videos,
     Tags,
     Testimonials,
     ContactSubmissions,
     Comments,
   ],
+  globals: [Homepage],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

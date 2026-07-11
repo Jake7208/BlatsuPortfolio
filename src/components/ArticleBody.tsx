@@ -2,6 +2,7 @@ import React from 'react'
 
 import type { CaseStudy } from '@/payload-types'
 import Media from '@/components/Media'
+import VideoEmbed from '@/components/VideoEmbed'
 import { mediaInfo } from '@/lib/media'
 
 type ArticleBodyProps = {
@@ -77,7 +78,7 @@ export default function ArticleBody({ post }: ArticleBodyProps) {
       </header>
 
       {hero && (
-        <div className="container">
+        <div className="post-hero-media container">
           <Media
             src={hero.url}
             srcSet={hero.srcSet}
@@ -86,6 +87,8 @@ export default function ArticleBody({ post }: ArticleBodyProps) {
             mimeType={hero.mime}
             width={hero.width}
             height={hero.height}
+            focalX={hero.focalX}
+            focalY={hero.focalY}
             loading="eager"
           />
         </div>
@@ -99,6 +102,10 @@ export default function ArticleBody({ post }: ArticleBodyProps) {
                 <p>{block.description}</p>
               </div>
             )
+          }
+
+          if (block.blockType === 'videoEmbed') {
+            return <VideoEmbed key={block.id ?? block.url} url={block.url} caption={block.caption} />
           }
 
           const media = mediaInfo(block.media)

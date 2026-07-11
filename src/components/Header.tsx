@@ -16,6 +16,9 @@ export default function Header() {
   const { open: openContact } = useContactModal()
   const [menuOpen, setMenuOpen] = React.useState(false)
   const [openDropdown, setOpenDropdown] = React.useState<string | null>(null)
+  // hover is tracked in JS (not CSS :hover) so a dropdown can close the moment
+  // a link is clicked, even while the pointer is still resting on the menu
+  const [hoverDropdown, setHoverDropdown] = React.useState<string | null>(null)
   const headerRef = React.useRef<HTMLElement>(null)
 
   const isActive = (item: NavItem) => {
@@ -31,10 +34,11 @@ export default function Header() {
   const closeAll = () => {
     setMenuOpen(false)
     setOpenDropdown(null)
+    setHoverDropdown(null)
   }
 
   React.useEffect(() => {
-    if (!menuOpen && !openDropdown) return
+    if (!menuOpen && !openDropdown && !hoverDropdown) return
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') closeAll()
@@ -42,14 +46,22 @@ export default function Header() {
     const onPointerDown = (event: PointerEvent) => {
       if (!headerRef.current?.contains(event.target as Node)) closeAll()
     }
+    // the header is sticky, so scrolling keeps the pointer parked on the
+    // trigger — dropdowns dismiss themselves instead of waiting for a click
+    const onScroll = () => {
+      setOpenDropdown(null)
+      setHoverDropdown(null)
+    }
 
     document.addEventListener('keydown', onKeyDown)
     document.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
       document.removeEventListener('keydown', onKeyDown)
       document.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('scroll', onScroll)
     }
-  }, [menuOpen, openDropdown])
+  }, [menuOpen, openDropdown, hoverDropdown])
 
   return (
     <header className="site-header" ref={headerRef}>
@@ -100,12 +112,20 @@ export default function Header() {
             }
 
             const dropdownId = `nav-menu-${item.label.toLowerCase()}`
-            const expanded = openDropdown === item.label
+            const expanded = openDropdown === item.label || hoverDropdown === item.label
 
             return (
               <div
                 key={item.label}
                 className={`nav-item has-children${expanded ? ' is-open' : ''}`}
+                // hover-opens only apply to the desktop bar with a real mouse —
+                // on touch, or in the stacked mobile flyout, a lingering hover
+                // state would wedge the menu open against the click toggle
+                onPointerEnter={(e) => {
+                  if (e.pointerType === 'mouse' && window.matchMedia('(min-width: 901px)').matches)
+                    setHoverDropdown(item.label)
+                }}
+                onPointerLeave={() => setHoverDropdown(null)}
               >
                 {/* the parent only toggles its dropdown — clicking "Work"
                     (once or twice) never navigates; pages are picked below */}
@@ -115,7 +135,9 @@ export default function Header() {
                   aria-current={current}
                   aria-expanded={expanded}
                   aria-controls={dropdownId}
-                  onClick={() => setOpenDropdown(expanded ? null : item.label)}
+                  onClick={() =>
+                    setOpenDropdown(openDropdown === item.label ? null : item.label)
+                  }
                 >
                   {item.label}
                   <ChevronDown />
