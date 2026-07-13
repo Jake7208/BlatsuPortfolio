@@ -13,7 +13,7 @@ const normalizeUrl = (src: string) => {
     ) {
       return parsed.pathname + parsed.search
     }
-  } catch (e) {}
+  } catch {}
   return src
 }
 
@@ -57,9 +57,15 @@ export default function MangaCanvas({ covers }: MangaCanvasProps) {
 
   // Use refs to pass the latest props/state to the animation loop
   const indexRef = useRef(index)
-  indexRef.current = index
   const coversRef = useRef(covers)
-  coversRef.current = covers
+
+  useEffect(() => {
+    indexRef.current = index
+  }, [index])
+
+  useEffect(() => {
+    coversRef.current = covers
+  }, [covers])
 
   // Set up cover rotation timer (resets when resetTimerKey changes)
   useEffect(() => {
@@ -188,7 +194,7 @@ export default function MangaCanvas({ covers }: MangaCanvasProps) {
       try {
         const parsed = new URL(cleanUrl, window.location.href)
         isExternal = parsed.origin !== window.location.origin
-      } catch (e) {}
+      } catch {}
 
       img.onload = () => {
         const tex = createTexture()

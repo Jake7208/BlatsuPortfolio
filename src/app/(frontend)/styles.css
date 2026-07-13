@@ -88,6 +88,11 @@ html.lenis body {
   overscroll-behavior: contain;
 }
 
+/* Prevent iframe embeds (like YouTube) from hijacking pointer and wheel events during active scroll */
+html.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
 .lenis.lenis-stopped {
   overflow: hidden;
 }

@@ -20,7 +20,7 @@ export default function VideoEmbed({
     <figure className="video-embed">
       {/* rel=0 limits end-screen/pause recommendations to the video's own channel */}
       <iframe
-        src={`https://www.youtube-nocookie.com/embed/${id}?rel=0&playsinline=1`}
+        src={`https://www.youtube-nocookie.com/embed/${id}?rel=0&playsinline=1&controls=1&cc_load_policy=0`}
         title={caption || 'Video'}
         loading="lazy"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

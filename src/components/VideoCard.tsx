@@ -74,7 +74,7 @@ export default function VideoCard({ url, title, thumbUrl, thumbSrcSet }: Props) 
             recommendations still appear, but only from the video's own channel */}
         <iframe
           ref={playerRef}
-          src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1&enablejsapi=1`}
+          src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1&enablejsapi=1&controls=1&cc_load_policy=0`}
           title={title}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           referrerPolicy="strict-origin-when-cross-origin"
